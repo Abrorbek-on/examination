@@ -34,7 +34,7 @@ export class VerificationService {
     private getMessage(type: EVerificationTypes, otp: string) {
         switch (type) {
             case EVerificationTypes.REGISTER:
-                return `Fixoo platformasidan ro'yxatdan o'tish uchun tasdiqlash kodi ${otp} Kodni hech kimga bermang`
+                return `Bu Eskiz dan test`
             case EVerificationTypes.EDIT_PHOHE:
                 return `Fixoo platformasida parolingizni tiklash uchun tasdiqlash kodi${otp} Kodni hech kimga bermang`
 
@@ -43,7 +43,7 @@ export class VerificationService {
 
         }
     }
-
+    
     private async throwIfUserExists(phone: string) {
         const user = await this.prisma.user.findUnique({
             where: {
@@ -107,10 +107,11 @@ export class VerificationService {
         if (!session) {
             throw new HttpException('Otp expired', HttpStatus.BAD_REQUEST)
         }
-
-        if (otp !== JSON.parse(session).otp) {
+        
+        if (otp !== JSON.parse(session)) {
             throw new HttpException('Invalid Otp', HttpStatus.BAD_REQUEST)
         }
+        
 
         await this.redis.del(this.getKey(type, phone))
         await this.redis.set(
@@ -134,7 +135,7 @@ export class VerificationService {
         if(!session) {
             throw new HttpException('Session expired', HttpStatus.BAD_REQUEST)
         }
-        if (otp !== JSON.parse(session).otp) {
+        if (otp !== JSON.parse(session)) {
             throw new HttpException('Invalid Otp', HttpStatus.BAD_REQUEST)
         }
         await this.redis.del(this.getKey(type, phone,true));

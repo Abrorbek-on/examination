@@ -7,7 +7,7 @@ export class CreateUserDto {
     example: '+998901234567',
     description: 'Foydalanuvchi telefon raqami',
   })
-  @IsPhoneNumber()
+  @IsPhoneNumber('UZ')
   phone: string;
 
   @ApiProperty({
@@ -19,7 +19,7 @@ export class CreateUserDto {
 
   @ApiProperty({
     example: 'Ali Valiyev',
-    description: 'Foydalanuvchi toliq ismi',
+    description: 'Foydalanuvchi to‘liq ismi',
   })
   @IsString()
   fullName: string;
@@ -34,6 +34,7 @@ export class CreateUserDto {
   @ApiPropertyOptional({
     example: 'ADMIN',
     enum: UserRole,
+    enumName: 'UserRole',
     description: 'Foydalanuvchi roli (majburiy emas)',
   })
   @IsOptional()

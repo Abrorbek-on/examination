@@ -19,6 +19,9 @@ import { VerificationModule } from 'src/modules/verification/verification.module
   ],
   providers: [AuthService, SMSService],
   controllers: [AuthController],
-  exports: [AuthService],
+  exports: [
+    AuthService,
+    JwtModule,
+  ],
 })
 export class AuthModule {}

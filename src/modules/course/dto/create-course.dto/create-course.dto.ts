@@ -13,11 +13,11 @@ export class CreateCourseDto {
   @IsString()
   name: string;
 
-  @ApiProperty({ example: 'NestJS framework haqida toliq kurs', description: 'Kurs haqida malumot' })
+  @ApiProperty({ example: 'NestJS framework haqida toliq kurs', description: 'Kurs haqida maʼlumot' })
   @IsString()
   about: string;
 
-  @ApiProperty({ example: 99000, description: 'Kurs narxi somlarda' })
+  @ApiProperty({ example: 99000, description: 'Kurs narxi soʻmlarda' })
   @IsNumber()
   price: number;
 
