@@ -1,16 +1,17 @@
-import { IsEnum, IsInt, IsNumber } from 'class-validator';
 import { PaidVia } from '@prisma/client';
+import { ApiProperty } from '@nestjs/swagger';
 
-export class CreatePurchasedCourseDto {
-  @IsInt()
-  userId: number;
-
-  @IsInt()
+export class PurchaseCourseDto {
+  @ApiProperty()
   courseId: number;
 
-  @IsNumber()
-  amount: number;
-
-  @IsEnum(PaidVia)
+  @ApiProperty({ enum: PaidVia })
   paidVia: PaidVia;
+
+  @ApiProperty()
+  amount: number;
+}
+export class CreatePurchasedCourseDto extends PurchaseCourseDto {
+  @ApiProperty()
+  userId: number;
 }

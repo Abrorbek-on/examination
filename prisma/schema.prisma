@@ -64,7 +64,7 @@ model User {
 }
 
 model MentorProfile {
-  id         Int    @id @default(autoincrement())
+  id         Int     @id @default(autoincrement())
   about      String
   job        String
   experience String
@@ -81,7 +81,7 @@ model MentorProfile {
 
 model CourseCategory {
   id        Int      @id @default(autoincrement())
-  name      String
+  name      String   @unique
   createdAt DateTime @default(now())
 
   courses Course[]
@@ -175,15 +175,15 @@ model LessonGroup {
 }
 
 model Lesson {
-  id           Int               @id @default(autoincrement())
-  name         String
-  about        String
-  video        String
-  groupId      Int
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
+  id        Int      @id @default(autoincrement())
+  name      String
+  about     String
+  video     String
+  groupId   Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  group        LessonGroup       @relation(fields: [groupId], references: [id])
+  group        LessonGroup    @relation(fields: [groupId], references: [id])
   lessonFiles  LessonFile[]
   lessonViews  LessonView[]
   homework     Homework?
@@ -211,15 +211,15 @@ model LessonFile {
 }
 
 model Homework {
-  id           Int                  @id @default(autoincrement())
-  task         String
-  file         String?
-  lessonId     Int                  @unique
-  createdAt    DateTime             @default(now())
-  updatedAt    DateTime             @updatedAt
+  id        Int      @id @default(autoincrement())
+  task      String
+  file      String?
+  lessonId  Int      @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  lesson       Lesson               @relation(fields: [lessonId], references: [id])
-  submissions  HomeworkSubmission[]
+  lesson      Lesson               @relation(fields: [lessonId], references: [id])
+  submissions HomeworkSubmission[]
 }
 
 model HomeworkSubmission {
@@ -233,8 +233,8 @@ model HomeworkSubmission {
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt
 
-  homework   Homework          @relation(fields: [homeworkId], references: [id])
-  user       User              @relation(fields: [userId], references: [id])
+  homework Homework @relation(fields: [homeworkId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
 }
 
 model Exam {

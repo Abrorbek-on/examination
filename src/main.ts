@@ -1,22 +1,21 @@
-import { NestFactory } from '@nestjs/core';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { NestFactory } from '@nestjs/core';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
-    .setTitle('LMS API')
-    .setDescription('Learning Management System uchun API hujjati')
+    .setTitle('LMS API') 
+    .setDescription('Learning Management System API documentation')
     .setVersion('1.0')
-    .addTag('LMS')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('swagger', app, document);
+  SwaggerModule.setup('api', app, document);
 
-  await app.listen(process.env.PORT ?? 3000);
-  console.log('http://localhost:3000/swagger');
-
+  await app.listen(3000);
+  console.log('http://localhost:3000/api');
 }
 bootstrap();
