@@ -43,11 +43,11 @@ enum ExamAnswer {
 
 model User {
   id        Int      @id @default(autoincrement())
-  phone     String @unique
+  fullName  String
+  phone     String   @unique
   password  String
   role      UserRole @default(STUDENT)
-  fullName  String
-  image     String?
+  image     String
   createdAt DateTime @default(now())
 
   mentorProfile   MentorProfile[]
@@ -68,12 +68,12 @@ model MentorProfile {
   about      String
   job        String
   experience String
-  telegram   String
-  instagram  String
-  linkedin   String
-  facebook   String
-  github     String
-  website    String
+  telegram   String?
+  instagram  String?
+  linkedin   String?
+  facebook   String?
+  github     String?
+  website    String?
 
   userId Int
   user   User @relation(fields: [userId], references: [id])
@@ -93,7 +93,7 @@ model Course {
   about      String
   price      Decimal     @db.Decimal
   banner     String
-  introVideo String?
+  introVideo String
   level      CourseLevel
   published  Boolean     @default(false)
   categoryId Int
@@ -225,7 +225,7 @@ model Homework {
 model HomeworkSubmission {
   id         Int               @id @default(autoincrement())
   text       String?
-  file       String
+  file       String?
   reason     String?
   status     HomeworkSubStatus @default(PENDING)
   homeworkId Int

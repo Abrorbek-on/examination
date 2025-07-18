@@ -1,12 +1,15 @@
-import { IsString } from 'class-validator';
+import { IsInt, IsString } from 'class-validator';
 
 export class CreateLessonDto {
   @IsString()
-  title: string;
+  name: string;
 
   @IsString()
-  videoUrl: string;
+  about: string;
 
   @IsString()
-  groupId: string;
+  video: string;
+
+  @IsInt()
+  groupId: number;
 }

@@ -1,14 +1,15 @@
-import { IsNumber, IsString, Min, Max } from 'class-validator';
+import { IsInt, IsString } from 'class-validator';
 
-export class RateDto {
-  @IsNumber()
-  @Min(1)
-  @Max(5)
-  rating: number;
+export class CreateRatingDto {
+  @IsInt()
+  rate: number;
 
   @IsString()
-  courseId: string;
+  comment: string;
 
-  @IsString()
-  userId: string;
+  @IsInt()
+  userId: number;
+
+  @IsInt()
+  courseId: number;
 }

@@ -1,9 +1,13 @@
-import { IsString } from 'class-validator';
+import { IsInt, IsOptional, IsString } from 'class-validator';
 
 export class CreateHomeworkDto {
   @IsString()
-  title: string;
+  task: string;
 
+  @IsOptional()
   @IsString()
-  lessonId: string;
+  file?: string;
+
+  @IsInt()
+  lessonId: number;
 }

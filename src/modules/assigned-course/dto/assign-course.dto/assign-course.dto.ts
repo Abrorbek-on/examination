@@ -1,9 +1,9 @@
-import { IsString } from 'class-validator';
+import { IsInt } from 'class-validator';
 
-export class AssignCourseDto {
-  @IsString()
-  courseId: string;
+export class CreateAssignedCourseDto {
+  @IsInt()
+  userId: number;
 
-  @IsString()
-  userId: string;
+  @IsInt()
+  courseId: number;
 }

@@ -1,9 +1,16 @@
-import { IsString } from 'class-validator';
+import { IsEnum, IsInt, IsNumber } from 'class-validator';
+import { PaidVia } from '@prisma/client';
 
-export class BuyCourseDto {
-  @IsString()
-  courseId: string;
+export class CreatePurchasedCourseDto {
+  @IsInt()
+  userId: number;
 
-  @IsString()
-  userId: string;
+  @IsInt()
+  courseId: number;
+
+  @IsNumber()
+  amount: number;
+
+  @IsEnum(PaidVia)
+  paidVia: PaidVia;
 }

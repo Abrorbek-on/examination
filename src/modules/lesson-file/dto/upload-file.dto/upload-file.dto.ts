@@ -1,12 +1,13 @@
-import { IsString, IsNumber } from 'class-validator';
+import { IsInt, IsOptional, IsString } from 'class-validator';
 
-export class UploadFileDto {
+export class CreateLessonFileDto {
   @IsString()
-  fileUrl: string;
+  file: string;
 
-  @IsNumber()
-  size: number;
-
+  @IsOptional()
   @IsString()
-  lessonId: string;
+  note?: string;
+
+  @IsInt()
+  lessonId: number;
 }

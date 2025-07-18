@@ -1,9 +1,25 @@
-import { IsString } from 'class-validator';
+import { IsEnum, IsInt, IsString } from 'class-validator';
+import { ExamAnswer } from '@prisma/client';
 
 export class CreateExamDto {
   @IsString()
-  title: string;
+  question: string;
 
   @IsString()
-  courseId: string;
+  variantA: string;
+
+  @IsString()
+  variantB: string;
+
+  @IsString()
+  variantC: string;
+
+  @IsString()
+  variantD: string;
+
+  @IsEnum(ExamAnswer)
+  answer: ExamAnswer;
+
+  @IsInt()
+  lessonGroupId: number;
 }

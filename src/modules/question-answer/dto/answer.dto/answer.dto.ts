@@ -1,9 +1,16 @@
-import { IsString } from 'class-validator';
+import { IsInt, IsOptional, IsString } from 'class-validator';
 
-export class AnswerDto {
-  @IsString()
-  questionId: string;
+export class CreateQuestionAnswerDto {
+  @IsInt()
+  questionId: number;
+
+  @IsInt()
+  userId: number;
 
   @IsString()
-  answer: string;
+  text: string;
+
+  @IsOptional()
+  @IsString()
+  file?: string;
 }

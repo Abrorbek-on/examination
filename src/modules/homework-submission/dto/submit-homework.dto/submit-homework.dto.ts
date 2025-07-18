@@ -1,9 +1,26 @@
-import { IsString } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
+import { HomeworkSubStatus } from '@prisma/client';
 
-export class SubmitHomeworkDto {
+export class CreateHomeworkSubmissionDto {
+  @IsOptional()
   @IsString()
-  homeworkId: string;
+  text?: string;
 
+  @IsOptional()
   @IsString()
-  fileUrl: string;
+  file?: string;
+
+  @IsOptional()
+  @IsString()
+  reason?: string;
+
+  @IsOptional()
+  @IsEnum(HomeworkSubStatus)
+  status?: HomeworkSubStatus;
+
+  @IsInt()
+  homeworkId: number;
+
+  @IsInt()
+  userId: number;
 }
