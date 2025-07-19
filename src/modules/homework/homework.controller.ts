@@ -16,7 +16,7 @@ import { UpdateHomeworkDto } from '../homework/dto/update-homework.dto/update-ho
 @ApiTags('Homework')
 @Controller('homework')
 export class HomeworkController {
-  constructor(private readonly service: HomeworkService) {}
+  constructor(private readonly service: HomeworkService) { }
 
   @Post()
   @ApiOperation({ summary: 'Yangi uyga vazifa yaratish' })

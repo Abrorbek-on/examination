@@ -6,10 +6,7 @@ import { CourseCategoryModule } from './modules/course-category/course-category.
 import { AssignedCourseModule } from './modules/assigned-course/assigned-course.module';
 import { PurchasedCourseModule } from './modules/purchased-course/purchased-course.module';
 import { RatingModule } from './modules/rating/rating.module';
-import { LessonGroupModule } from './modules/lesson-group/lesson-group.module';
-import { LessonModule } from './modules/lesson/lesson.module';
 import { LessonViewModule } from './modules/lesson-view/lesson-view.module';
-import { LessonFileModule } from './modules/lesson-file/lesson-file.module';
 import { HomeworkModule } from './modules/homework/homework.module';
 import { HomeworkSubmissionModule } from './modules/homework-submission/homework-submission.module';
 import { ExamModule } from './modules/exam/exam.module';
@@ -20,9 +17,12 @@ import { LastActivityModule } from './modules/last-activity/last-activity.module
 import { VerificationModule } from './modules/verification/verification.module';
 import { UsersModule } from './modules/user/user.module';
 import { CoursesModule } from './modules/course/course.module';
+import { LessonsModule } from './modules/lesson/lesson.module';
+import { LessonGroupsModule } from './modules/lesson-group/lesson-group.module';
+import { LessonFilesModule } from './modules/lesson-file/lesson-file.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, UsersModule, MentorProfileModule, CourseCategoryModule, CoursesModule, AssignedCourseModule, PurchasedCourseModule, RatingModule, LessonGroupModule, LessonModule, LessonViewModule, LessonFileModule, HomeworkModule, HomeworkSubmissionModule, ExamModule, ExamResultModule, QuestionModule, QuestionAnswerModule, LastActivityModule, VerificationModule],
+  imports: [PrismaModule, AuthModule, UsersModule, MentorProfileModule, CourseCategoryModule, CoursesModule, AssignedCourseModule, PurchasedCourseModule, RatingModule, LessonGroupsModule, LessonsModule, LessonViewModule, LessonFilesModule, HomeworkModule, HomeworkSubmissionModule, ExamModule, ExamResultModule, QuestionModule, QuestionAnswerModule, LastActivityModule, VerificationModule],
   controllers: [],
   providers: [],
 })

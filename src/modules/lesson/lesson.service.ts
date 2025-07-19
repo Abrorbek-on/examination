@@ -1,54 +1,129 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateLessonDto } from './dto/create-lesson.dto/create-lesson.dto';
-import { PrismaService } from 'src/core/database/prisma.service';
-import { UpdateLessonDto } from './dto/update-lesson.dto/update-lesson.dto';
+import { Injectable, NotFoundException } from "@nestjs/common"
+import { PrismaService } from "src/core/database/prisma.service"
+import { CreateLessonDto } from "./dto/create-lesson.dto/create-lesson.dto"
+import { UpdateLessonDto } from "./dto/update-lesson.dto/update-lesson.dto"
 
 @Injectable()
-export class LessonService {
+export class LessonsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(body: CreateLessonDto) {
+  async create(createLessonDto: CreateLessonDto) {
     return this.prisma.lesson.create({
-      data: body,
-    });
+      data: createLessonDto,
+      include: {
+        group: true,
+      },
+    })
   }
 
-  async getOne(id: number) {
+  async findOne(id: number) {
     const lesson = await this.prisma.lesson.findUnique({
       where: { id },
       include: {
+        group: {
+          include: {
+            course: true,
+          },
+        },
         lessonFiles: true,
-        lessonViews: true,
         homework: true,
       },
-    });
-    if (!lesson) throw new NotFoundException('Lesson not found');
-    return lesson;
+    })
+
+    if (!lesson) throw new NotFoundException("Lesson not found")
+    return lesson
   }
 
-  async view(lessonId: number) {
-  return this.prisma.lessonView.create({
-    data: {
-      lessonId,
-      userId: 1,
-      view: true, 
-    },
-  });
-}
+  async findOneWithDetails(id: number) {
+    const lesson = await this.prisma.lesson.findUnique({
+      where: { id },
+      include: {
+        group: {
+          include: {
+            course: {
+              include: {
+                mentor: {
+                  select: {
+                    id: true,
+                    fullName: true,
+                    image: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+        lessonFiles: true,
+        lessonViews: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                fullName: true,
+                image: true,
+              },
+            },
+          },
+        },
+        homework: {
+          include: {
+            submissions: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    fullName: true,
+                    image: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
 
+    if (!lesson) throw new NotFoundException("Lesson not found")
+    return lesson
+  }
 
-  async update(id: number, body: UpdateLessonDto) {
-    const lesson = await this.prisma.lesson.findUnique({ where: { id } });
-    if (!lesson) throw new NotFoundException('Lesson not found');
+  async markAsViewed(lessonId: number, userId: number) {
+    const existingView = await this.prisma.lessonView.findFirst({
+      where: {
+        lessonId,
+        userId,
+      },
+    })
+
+    if (existingView) {
+      return this.prisma.lessonView.update({
+        where: { id: existingView.id },
+        data: { view: true },
+      })
+    } else {
+      return this.prisma.lessonView.create({
+        data: {
+          lessonId,
+          userId,
+          view: true,
+        },
+      })
+    }
+  }
+
+  async update(id: number, updateLessonDto: UpdateLessonDto) {
+    await this.findOne(id)
     return this.prisma.lesson.update({
       where: { id },
-      data: body,
-    });
+      data: updateLessonDto,
+      include: {
+        group: true,
+      },
+    })
   }
 
   async remove(id: number) {
-    const lesson = await this.prisma.lesson.findUnique({ where: { id } });
-    if (!lesson) throw new NotFoundException('Lesson not found');
-    return this.prisma.lesson.delete({ where: { id } });
+    await this.findOne(id)
+    return this.prisma.lesson.delete({ where: { id } })
   }
 }

@@ -1,9 +1,21 @@
-import { Module } from '@nestjs/common';
-import { LessonGroupController } from './lesson-group.controller';
-import { LessonGroupService } from './lesson-group.service';
+import { Module } from "@nestjs/common"
+import { JwtModule } from "@nestjs/jwt"
+import { AuthGuard } from "src/common/global/guard"
+import { RoleGuard } from "src/common/guard/role.guard"
+import { PrismaModule } from "src/core/database/prisma.module"
+import { LessonGroupsController } from "./lesson-group.controller"
+import { LessonGroupsService } from "./lesson-group.service"
 
 @Module({
-  controllers: [LessonGroupController],
-  providers: [LessonGroupService]
+  imports: [
+    PrismaModule,
+    JwtModule.register({
+      secret: process.env.JWT_SECRET || "your-secret-key",
+      signOptions: { expiresIn: "24h" },
+    }),
+  ],
+  controllers: [LessonGroupsController],
+  providers: [LessonGroupsService, AuthGuard, RoleGuard],
+  exports: [LessonGroupsService],
 })
-export class LessonGroupModule {}
+export class LessonGroupsModule {}

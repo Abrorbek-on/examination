@@ -121,9 +121,8 @@ model AssignedCourse {
   user   User   @relation(fields: [userId], references: [id])
   course Course @relation(fields: [courseId], references: [id])
 
-  @@unique([userId, courseId]) 
+  @@unique([userId, courseId])
 }
-
 
 model PurchasedCourse {
   id          Int      @id @default(autoincrement())
@@ -201,6 +200,8 @@ model LessonView {
 
   lesson Lesson @relation(fields: [lessonId], references: [id])
   user   User   @relation(fields: [userId], references: [id])
+
+  @@unique([lessonId, userId])
 }
 
 model LessonFile {

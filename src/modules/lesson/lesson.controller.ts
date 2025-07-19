@@ -1,73 +1,74 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Put,
-  Delete,
-  Param,
-  Body,
-  UseGuards,
-} from '@nestjs/common';
-import { LessonService } from './lesson.service';
-import { Roles } from 'src/common/global/decarator';
-import { RoleGuard } from 'src/common/guard/role.guard';
-import { UserRole } from '@prisma/client';
-import { ApiBearerAuth, ApiTags, ApiOperation, ApiParam } from '@nestjs/swagger';
-import { CreateLessonDto } from './dto/create-lesson.dto/create-lesson.dto';
-import { UpdateLessonDto } from './dto/update-lesson.dto/update-lesson.dto';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Put } from "@nestjs/common"
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from "@nestjs/swagger"
+import { AuthGuard } from "src/common/global/guard"
+import { RoleGuard } from "src/common/guard/role.guard"
+import { Roles } from "src/common/global/decarator"
+import { LessonsService } from "./lesson.service"
+import { CreateLessonDto } from "./dto/create-lesson.dto/create-lesson.dto"
+import { UpdateLessonDto } from "./dto/update-lesson.dto/update-lesson.dto"
 
-@ApiTags('Lessons')
-@ApiBearerAuth()
-@UseGuards(RoleGuard)
-@Controller('api/lessons')
-export class LessonController {
-  constructor(private readonly lessonService: LessonService) {}
-
-  @Post('create')
-  @Roles(UserRole.ADMIN, UserRole.MENTOR)
-  @ApiOperation({ summary: 'Create new lesson (ADMIN, MENTOR)' })
-  create(@Body() body: CreateLessonDto) {
-    return this.lessonService.create(body);
-  }
+@ApiTags("Lessons")
+@Controller("lessons")
+export class LessonsController {
+  constructor(private readonly lessonsService: LessonsService) {}
 
   @Get('single/:lessonId')
-  @Roles(UserRole.STUDENT)
-  @ApiOperation({ summary: 'Get single lesson by student (STUDENT)' })
-  @ApiParam({ name: 'lessonId', type: 'number' })
-  getSingle(@Param('lessonId') id: string) {
-    return this.lessonService.getOne(+id);
+  @UseGuards(AuthGuard, RoleGuard)
+  @ApiBearerAuth()
+  @Roles('STUDENT')
+  @ApiOperation({ summary: 'Darsni ID orqali olish (Student)' })
+  @ApiResponse({ status: 200, description: 'Topilgan dars' })
+  getSingle(@Param('lessonId') lessonId: string) {
+    return this.lessonsService.findOne(+lessonId);
   }
 
-  @Put('view/:lessonId')
-  @Roles(UserRole.STUDENT)
-  @ApiOperation({ summary: 'View lesson - mark as viewed (STUDENT)' })
-  @ApiParam({ name: 'lessonId', type: 'number' })
-  viewLesson(@Param('lessonId') id: string) {
-    return this.lessonService.view(+id);
+  @Put("view/:lessonId")
+  @UseGuards(AuthGuard, RoleGuard)
+  @ApiBearerAuth()
+  @Roles("STUDENT")
+  @ApiOperation({ summary: "Darsni ko'rilgan deb belgilash" })
+  @ApiResponse({ status: 200, description: "Dars ko'rilgan deb belgilandi" })
+  markAsViewed(@Param('lessonId') lessonId: string, @Body() body: { userId: number }) {
+    return this.lessonsService.markAsViewed(+lessonId, body.userId)
   }
 
   @Get('detail/:id')
-  @Roles(UserRole.ADMIN, UserRole.MENTOR)
-  @ApiOperation({ summary: 'Get lesson detail (ADMIN, MENTOR)' })
-  @ApiParam({ name: 'id', type: 'number' })
+  @UseGuards(AuthGuard, RoleGuard)
+  @ApiBearerAuth()
+  @Roles('ADMIN', 'MENTOR')
+  @ApiOperation({ summary: 'Dars tafsilotlarini olish' })
+  @ApiResponse({ status: 200, description: 'Dars tafsilotlari' })
   getDetail(@Param('id') id: string) {
-    return this.lessonService.getOne(+id);
+    return this.lessonsService.findOneWithDetails(+id);
   }
 
-  @Patch(':id')
-  @Roles(UserRole.ADMIN, UserRole.MENTOR)
-  @ApiOperation({ summary: 'Update lesson (ADMIN, MENTOR)' })
-  @ApiParam({ name: 'id', type: 'number' })
-  update(@Param('id') id: string, @Body() body: UpdateLessonDto) {
-    return this.lessonService.update(+id, body);
+  @Post('create')
+  @UseGuards(AuthGuard, RoleGuard)
+  @ApiBearerAuth()
+  @Roles('ADMIN', 'MENTOR')
+  @ApiOperation({ summary: 'Yangi dars yaratish' })
+  @ApiResponse({ status: 201, description: 'Dars yaratildi' })
+  create(@Body() createLessonDto: CreateLessonDto) {
+    return this.lessonsService.create(createLessonDto);
+  }
+
+  @Patch(":id")
+  @UseGuards(AuthGuard, RoleGuard)
+  @ApiBearerAuth()
+  @Roles("ADMIN", "MENTOR")
+  @ApiOperation({ summary: "Darsni yangilash" })
+  @ApiResponse({ status: 200, description: "Dars yangilandi" })
+  update(@Param('id') id: string, @Body() updateLessonDto: UpdateLessonDto) {
+    return this.lessonsService.update(+id, updateLessonDto)
   }
 
   @Delete(':id')
-  @Roles(UserRole.ADMIN, UserRole.MENTOR)
-  @ApiOperation({ summary: 'Delete lesson (ADMIN, MENTOR)' })
-  @ApiParam({ name: 'id', type: 'number' })
+  @UseGuards(AuthGuard, RoleGuard)
+  @ApiBearerAuth()
+  @Roles('ADMIN', 'MENTOR')
+  @ApiOperation({ summary: 'Darsni ochirish' })
+  @ApiResponse({ status: 200, description: 'Dars ochirildi' })
   remove(@Param('id') id: string) {
-    return this.lessonService.remove(+id);
+    return this.lessonsService.remove(+id);
   }
 }

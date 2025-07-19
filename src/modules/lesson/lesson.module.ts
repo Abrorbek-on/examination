@@ -1,10 +1,13 @@
-import { Module } from '@nestjs/common';
-import { LessonController } from './lesson.controller';
-import { LessonService } from './lesson.service';
-import { PrismaService } from 'src/core/database/prisma.service';
-
+import { Module } from "@nestjs/common"
+import { JwtModule } from "@nestjs/jwt"
+import { AuthGuard } from "src/common/global/guard"
+import { LessonsController } from "./lesson.controller"
+import { LessonsService } from "./lesson.service"
+import { AuthModule } from "../auth/auth.module"
 @Module({
-  controllers: [LessonController],
-  providers: [LessonService, PrismaService],
+  imports: [AuthModule],
+  controllers: [LessonsController],
+  providers: [LessonsService, AuthGuard],
+  exports: [LessonsService],
 })
-export class LessonModule {}
+export class LessonsModule {}

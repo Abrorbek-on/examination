@@ -24,25 +24,25 @@ export class ExamsController {
     return this.service.getByLessonGroup(+lessonGroupId);
   }
 
-//   @Post('pass')
-//   @UseGuards(RoleGuard)
-//   @Roles(UserRole.STUDENT)
-//   @ApiOperation({ summary: 'Examni topshirish (STUDENT)' })
-//   @ApiBody({
-//     schema: {
-//       example: {
-//         lessonGroupId: 1,
-//         answers: [
-//           { examId: 1, selected: 'variantA' },
-//           { examId: 2, selected: 'variantC' },
-//         ],
-//       },
-//     },
-//   })
-//   passExam(@Body() data: any, @Req() req: Request) {
-//     const userId = req.user['id'];
-//     return this.service.passExam(data, userId);
-//   }
+  @Post('pass')
+  @UseGuards(RoleGuard)
+  @Roles(UserRole.STUDENT)
+  @ApiOperation({ summary: 'Examni topshirish (STUDENT)' })
+  @ApiBody({
+    schema: {
+      example: {
+        lessonGroupId: 1,
+        answers: [
+          { examId: 1, selected: 'variantA' },
+          { examId: 2, selected: 'variantC' },
+        ],
+      },
+    },
+  })
+  passExam(@Body() data: any, @Req() req: Request) {
+    const userId = req['user'].id;
+    return this.service.passExam(data, userId);
+  }
 
   @Get('lesson-group/details/:id')
   @UseGuards(RoleGuard)

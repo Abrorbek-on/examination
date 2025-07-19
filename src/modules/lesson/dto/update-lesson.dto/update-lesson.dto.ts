@@ -1,24 +1,4 @@
-import { IsOptional, IsString, IsInt } from 'class-validator';
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { PartialType } from '@nestjs/swagger';
+import { CreateLessonDto } from '../create-lesson.dto/create-lesson.dto';
 
-export class UpdateLessonDto {
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  name?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  about?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  video?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsInt()
-  groupId?: number;
-}
+export class UpdateLessonDto extends PartialType(CreateLessonDto) {}

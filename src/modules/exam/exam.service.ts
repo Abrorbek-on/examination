@@ -12,46 +12,46 @@ export class ExamsService {
     });
   }
 
-//   async passExam(data: { lessonGroupId: number; answers: { examId: number; selected: string }[] }, userId: number) {
-//     const exams = await this.prisma.exam.findMany({
-//       where: { lessonGroupId: data.lessonGroupId },
-//     });
+  async passExam(data: { lessonGroupId: number; answers: { examId: number; selected: string }[] }, userId: number) {
+    const exams = await this.prisma.exam.findMany({
+      where: { lessonGroupId: data.lessonGroupId },
+    });
 
-//     let corrects = 0;
-//     let wrongs = 0;
+    let corrects = 0;
+    let wrongs = 0;
 
-//     for (const answer of data.answers) {
-//       const exam = exams.find((e) => e.id === answer.examId);
-//       if (!exam) continue;
+    for (const answer of data.answers) {
+      const exam = exams.find((e) => e.id === answer.examId);
+      if (!exam) continue;
 
-//       if (exam.answer === answer.selected) {
-//         corrects++;
-//       } else {
-//         wrongs++;
-//       }
-//     }
+      if (exam.answer === answer.selected) {
+        corrects++;
+      } else {
+        wrongs++;
+      }
+    }
 
-//     const total = exams.length;
-//     const passed = corrects >= Math.ceil(total * 0.7);
+    const total = exams.length;
+    const passed = corrects >= Math.ceil(total * 0.7);
 
-//     await this.prisma.examResult.create({
-//       data: {
-//         lessonGroupId: data.lessonGroupId,
-//         userId,
-//         corrects,
-//         wrongs,
-//         passed,
-//       },
-//     });
+    await this.prisma.examResult.create({
+      data: {
+        lessonGroupId: data.lessonGroupId,
+        userId,
+        corrects,
+        wrongs,
+        passed,
+      },
+    });
 
-//     return {
-//       message: 'Exam checked successfully',
-//       passed,
-//       corrects,
-//       wrongs,
-//       total,
-//     };
-//   }
+    return {
+      message: 'Exam checked successfully',
+      passed,
+      corrects,
+      wrongs,
+      total,
+    };
+  }
 
   async getGroupDetails(id: number) {
     return this.prisma.lessonGroup.findUnique({
