@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/core/database/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto/update-user.dto';
@@ -37,8 +37,17 @@ export class UsersService {
   }
 
   async createUser(dto: CreateUserDto) {
-    return this.prisma.user.create({ data: dto });
+  const existingUser = await this.prisma.user.findUnique({
+    where: { phone: dto.phone },
+  });
+
+  if (existingUser) {
+    throw new ConflictException('Bu telefon raqami bilan foydalanuvchi allaqachon mavjud');
   }
+
+  return this.prisma.user.create({ data: dto });
+}
+
 
   async updateUser(id: number, dto: UpdateUserDto) {
     await this.findOne(id);

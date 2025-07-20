@@ -9,12 +9,12 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { UserRole } from '@prisma/client';
 import { CoursesService } from './course.service';
 import { CreateCourseDto } from './dto/create-course.dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto/update-course.dto';
 import { RoleGuard } from 'src/common/guard/role.guard';
 import { Roles } from 'src/common/global/decarator';
+import { AuthGuard } from 'src/common/global/guard';
 
 import {
   ApiTags,
@@ -23,7 +23,6 @@ import {
   ApiBody,
   ApiParam,
 } from '@nestjs/swagger';
-import { AuthGuard } from 'src/common/global/guard';
 
 @ApiTags('Courses')
 @ApiBearerAuth()
@@ -44,15 +43,15 @@ export class CoursesController {
   }
 
   @Get('single-full/:id')
-  @UseGuards(RoleGuard,AuthGuard)
-  @Roles('ADMIN','MENTOR', 'ASSISTANT')
-  @ApiOperation({ summary: 'Kurs haqida toliq malumot (rolga asoslangan)' })
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles('ADMIN', 'MENTOR', 'ASSISTANT')
+  @ApiOperation({ summary: 'Kurs haqida toliq maʼlumot (rolga asoslangan)' })
   getFull(@Param('id') id: string) {
     return this.service.getFull(+id);
   }
 
   @Get('all')
-  @UseGuards(RoleGuard, AuthGuard)
+  @UseGuards(AuthGuard, RoleGuard)
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Barcha kurslarni olish (admin)' })
   getAllAdmin() {
@@ -60,40 +59,40 @@ export class CoursesController {
   }
 
   @Get('my')
-  @UseGuards(RoleGuard, AuthGuard)
-  @Roles('ADMIN','MENTOR')
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles('ADMIN', 'MENTOR')
   @ApiOperation({ summary: 'Mentorning oz kurslarini olish' })
   getMyCourses(@Request() req) {
     return this.service.getMyCourses(req.user.id);
   }
 
   @Get('mentor/:id')
-  @UseGuards(RoleGuard, AuthGuard)
+  @UseGuards(AuthGuard, RoleGuard)
   @Roles('ADMIN')
-  @ApiOperation({ summary: 'Berilgan mentorga tegishli kurslarni olish' })
+  @ApiOperation({ summary: 'Berilgan mentorga tegishli kurslar' })
   getMentorCourses(@Param('id') id: string) {
     return this.service.getMentorCourses(+id);
   }
 
   @Get('my/assigned')
-  @UseGuards(RoleGuard, AuthGuard)
+  @UseGuards(AuthGuard, RoleGuard)
   @Roles('ASSISTANT')
-  @ApiOperation({ summary: 'Assistantga biriktirilgan kurslarni olish' })
+  @ApiOperation({ summary: 'Assistantga biriktirilgan kurslar' })
   getAssignedCourses(@Request() req) {
     return this.service.getAssignedCourses(req.user.id);
   }
 
   @Get(':courseId/assistants')
-  @UseGuards(RoleGuard, AuthGuard)
-  @Roles('ADMIN','MENTOR')
-  @ApiOperation({ summary: 'Kursga biriktirilgan assistantlarni olish' })
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles('ADMIN', 'MENTOR')
+  @ApiOperation({ summary: 'Kursga biriktirilgan assistantlar' })
   getAssistants(@Param('courseId') courseId: string) {
     return this.service.getAssistants(+courseId);
   }
 
   @Post('assign-assistant')
-  @UseGuards(RoleGuard, AuthGuard)
-  @Roles('ADMIN','MENTOR')
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles('ADMIN', 'MENTOR')
   @ApiOperation({ summary: 'Kursga assistant biriktirish' })
   @ApiBody({
     schema: {
@@ -108,8 +107,8 @@ export class CoursesController {
   }
 
   @Post('unassign-assistant')
-  @UseGuards(RoleGuard, AuthGuard)
-  @Roles('ADMIN','MENTOR')
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles('ADMIN', 'MENTOR')
   @ApiOperation({ summary: 'Kursdan assistantni ajratish' })
   @ApiBody({
     schema: {
@@ -124,30 +123,26 @@ export class CoursesController {
   }
 
   @Post('create')
-  @UseGuards(RoleGuard, AuthGuard)
-  @Roles('ADMIN','MENTOR')
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles('ADMIN', 'MENTOR')
   @ApiOperation({ summary: 'Yangi kurs yaratish' })
-  @ApiBody({
-    type: CreateCourseDto,
-  })
+  @ApiBody({ type: CreateCourseDto })
   create(@Body() dto: CreateCourseDto) {
     return this.service.create(dto);
   }
 
   @Patch('update/:id')
-  @UseGuards(RoleGuard, AuthGuard)
-  @Roles('ADMIN','MENTOR')
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles('ADMIN', 'MENTOR')
   @ApiOperation({ summary: 'Kursni tahrirlash' })
   @ApiParam({ name: 'id', type: Number })
-  @ApiBody({
-    type: UpdateCourseDto,
-  })
+  @ApiBody({ type: UpdateCourseDto })
   update(@Param('id') id: string, @Body() dto: UpdateCourseDto) {
     return this.service.update(+id, dto);
   }
 
   @Post('publish/:id')
-  @UseGuards(RoleGuard, AuthGuard)
+  @UseGuards(AuthGuard, RoleGuard)
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Kursni nashr qilish' })
   @ApiParam({ name: 'id', type: Number })
@@ -156,7 +151,7 @@ export class CoursesController {
   }
 
   @Post('unpublish/:id')
-  @UseGuards(RoleGuard, AuthGuard)
+  @UseGuards(AuthGuard, RoleGuard)
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Kursni nashr qilinmagan holatga otkazish' })
   @ApiParam({ name: 'id', type: Number })
@@ -165,7 +160,7 @@ export class CoursesController {
   }
 
   @Patch('update-mentor')
-  @UseGuards(RoleGuard, AuthGuard)
+  @UseGuards(AuthGuard, RoleGuard)
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Kurs mentorini almashtirish' })
   @ApiBody({
@@ -181,8 +176,8 @@ export class CoursesController {
   }
 
   @Delete('delete/:id')
-  @UseGuards(RoleGuard, AuthGuard)
-  @Roles('ADMIN','MENTOR')
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles('ADMIN', 'MENTOR')
   @ApiOperation({ summary: 'Kursni ochirish' })
   @ApiParam({ name: 'id', type: Number })
   delete(@Param('id') id: string) {

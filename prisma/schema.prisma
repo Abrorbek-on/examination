@@ -281,7 +281,7 @@ model Question {
 
   user   User            @relation(fields: [userId], references: [id])
   course Course          @relation(fields: [courseId], references: [id])
-  answer QuestionAnswer?
+  answer QuestionAnswer[]
 }
 
 model QuestionAnswer {

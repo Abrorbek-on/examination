@@ -9,8 +9,6 @@ import {
     UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto/update-user.dto';
 import {
     ApiTags,
     ApiOperation,
@@ -20,6 +18,8 @@ import {
 import { AuthGuard } from 'src/common/global/guard';
 import { Roles } from 'src/common/global/decarator';
 import { RoleGuard } from 'src/common/guard/role.guard';
+import { CreateUserDto } from './dto/create-user.dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto/update-user.dto';
 
 @ApiTags('Users')
 @Controller('users')
