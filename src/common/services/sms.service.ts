@@ -20,9 +20,7 @@ export class SMSService {
                     email: this.USERNAME,
                     password: this.TOKEN
                 },
-            );
-            console.log(data);
-            
+            );            
             await this.$axios.post<SMSSendResponse>('/message/sms/send',
                 {
                     from: this.$from,

@@ -2,7 +2,6 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { SendOtp, VerifyOtpDto } from './dto/verification.dto';
 import { EVerificationTypes, ICheckOtp } from 'src/common/types/verification';
 import { PrismaService } from 'src/core/database/prisma.service';
-import { generate } from 'rxjs';
 import { generateOtp } from 'src/core/utils/random';
 import { secToMills } from 'src/core/utils/times';
 import { RedisService } from 'src/common/redis/redis.service';
@@ -34,14 +33,13 @@ export class VerificationService {
     private getMessage(type: EVerificationTypes, otp: string) {
         switch (type) {
             case EVerificationTypes.REGISTER:
-                return `Bu Eskiz dan test`
-            case EVerificationTypes.EDIT_PHOHE:
-                return `Fixoo platformasida parolingizni tiklash uchun tasdiqlash kodi${otp} Kodni hech kimga bermang`
-
+                return `Fixoo platformasida telefoningizni o'zgartirish uchun tasdiqlash kodi: ${otp}. Kodni hech kimga bermang!`;
             case EVerificationTypes.RESET_PASSWORD:
-                return `Fixoo platformasida telefoningizni o'zgartirish uchun tasdiqlash kodi ${otp} Kodni hech kimga bermang`
-
+                return `Fixoo platformasida parolingizni tiklash uchun tasdiqlash kodi: ${otp}. Kodni hech kimga bermang!`;
+            case EVerificationTypes.EDIT_PHOHE:
+                return `Fixoo platformasida telefoningizni o'zgartirish uchun tasdiqlash kodi: ${otp}. Kodni hech kimga bermang!`;
         }
+
     }
     
     private async throwIfUserExists(phone: string) {
