@@ -7,18 +7,24 @@ export class LessonFilesService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(createLessonFileDto: CreateLessonFileDto) {
-    return this.prisma.lessonFile.create({
-      data: createLessonFileDto,
-      include: {
-        lesson: {
-          select: {
-            id: true,
-            name: true,
-          },
+  const lessonExists = await this.prisma.lesson.findUnique({ where: { id: createLessonFileDto.lessonId } });
+  if (!lessonExists) {
+    throw new NotFoundException('Lesson not found');
+  }
+
+  return this.prisma.lessonFile.create({
+    data: createLessonFileDto,
+    include: {
+      lesson: {
+        select: {
+          id: true,
+          name: true,
         },
       },
-    })
-  }
+    },
+  });
+}
+
 
   async findByLesson(lessonId: number) {
     return this.prisma.lessonFile.findMany({

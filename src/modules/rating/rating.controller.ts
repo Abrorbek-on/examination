@@ -9,7 +9,7 @@ import { CreateRatingDto } from "./dto/rate.dto/rate.dto";
 @ApiTags('Course Rating')
 @Controller('course-rating')
 export class RatingController {
-  constructor(private readonly ratingService: RatingService) {}
+  constructor(private readonly ratingService: RatingService) { }
 
   @Get('latest')
   @ApiOperation({ summary: 'Latest ratings' })
@@ -19,21 +19,21 @@ export class RatingController {
 
   @Get('list/:course_id')
   @ApiOperation({ summary: 'Course ratings list' })
-  getList(@Param('course_id') courseId: number) {
-    return this.ratingService.getList(courseId);
+  getList(@Param('course_id') courseId: string) {
+    return this.ratingService.getList(+courseId);
   }
 
   @Get('analytics/:course_id')
   @ApiOperation({ summary: 'Course rating analytics' })
-  getAnalytics(@Param('course_id') courseId: number) {
-    return this.ratingService.getAnalytics(courseId);
+  getAnalytics(@Param('course_id') courseId: string) {
+    return this.ratingService.getAnalytics(+courseId);
   }
 
   @Post()
-  @Roles('STUDENT')
+  @Roles('ADMIN')
   @UseGuards(AuthGuard, RoleGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Submit rating (STUDENT)' })
+  @ApiOperation({ summary: 'Submit rating (ADMIN)' })
   create(@Body() dto: CreateRatingDto) {
     return this.ratingService.create(dto);
   }
@@ -43,7 +43,7 @@ export class RatingController {
   @UseGuards(AuthGuard, RoleGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Delete rating (ADMIN)' })
-  delete(@Param('id') id: number) {
-    return this.ratingService.delete(id);
+  delete(@Param('id') id: string) {
+    return this.ratingService.delete(+id);
   }
 }

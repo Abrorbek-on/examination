@@ -23,7 +23,7 @@ export class CreateExamDto {
   @IsString()
   variantD: string;
 
-  @ApiProperty({ example: 'C', enum: ExamAnswer, description: 'Togri javob' })
+  @ApiProperty({ example: 'variantC', enum: ExamAnswer, description: 'Togri javob' })
   @IsEnum(ExamAnswer)
   answer: ExamAnswer;
 

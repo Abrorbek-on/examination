@@ -35,7 +35,7 @@ export class QuestionController {
     return this.questionService.getAll();
   }
 
-  @ApiOperation({ summary: 'ID bo‘yicha bitta savol olish' })
+  @ApiOperation({ summary: 'ID boyicha bitta savol olish' })
   @Get(':id')
   getOne(@Param('id', ParseIntPipe) id: number) {
     return this.questionService.getOne(id);
@@ -56,25 +56,25 @@ export class QuestionController {
     return this.questionService.update(id, dto);
   }
 
-  @ApiOperation({ summary: 'Savolni o‘chirish' })
+  @ApiOperation({ summary: 'Savolni ochirish' })
   @Delete(':id')
   delete(@Param('id', ParseIntPipe) id: number) {
     return this.questionService.delete(id);
   }
 
-  @ApiOperation({ summary: 'User ID bo‘yicha savollarni olish' })
+  @ApiOperation({ summary: 'User ID boyicha savollarni olish' })
   @Get('/user/:userId')
   getByUser(@Param('userId', ParseIntPipe) userId: number) {
     return this.questionService.getByUser(userId);
   }
 
-  @ApiOperation({ summary: 'Course ID bo‘yicha savollarni olish' })
+  @ApiOperation({ summary: 'Course ID boyicha savollarni olish' })
   @Get('/course/:courseId')
   getByCourse(@Param('courseId', ParseIntPipe) courseId: number) {
     return this.questionService.getByCourse(courseId);
   }
 
-  @ApiOperation({ summary: 'Matn bo‘yicha qidiruv' })
+  @ApiOperation({ summary: 'Matn boyicha qidiruv' })
   @Get('/search/text')
   search(@Query('q') q: string) {
     return this.questionService.search(q);

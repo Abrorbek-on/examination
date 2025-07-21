@@ -85,7 +85,7 @@ export class UsersController {
 
     @Post()
     @UseGuards(AuthGuard, RoleGuard)
-    @ApiBearerAuth()
+    @ApiBearerAuth()        
     @Roles('ADMIN')
     @ApiOperation({ summary: 'Yangi user yaratish (Admin)' })
     @ApiResponse({ status: 201, description: 'User yaratildi' })

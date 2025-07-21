@@ -23,6 +23,7 @@ export class CourseCategoryController {
   getById(@Param('id') id: number) {
     return this.courseCategoryService.getById(id);
   }
+  
 
   @Post()
   @Roles('ADMIN')

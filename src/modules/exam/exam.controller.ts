@@ -10,23 +10,24 @@ import { UserRole } from '@prisma/client';
 import { ExamsService } from './exam.service';
 import { CreateExamDto } from './dto/create-exam.dto/create-exam.dto';
 import { Request } from 'express';
+import { AuthGuard } from 'src/common/global/guard';
 
 @ApiTags('Exams')
 @ApiBearerAuth()
 @Controller('api/exams')
 export class ExamsController {
-  constructor(private readonly service: ExamsService) {}
+  constructor(private readonly examservice: ExamsService) { }
 
   @Get('lesson-group/:lessonGroupId')
   @ApiOperation({ summary: 'LessonGroup ID orqali examlar (STUDENT)' })
   @ApiParam({ name: 'lessonGroupId', type: Number })
   getByLessonGroup(@Param('lessonGroupId') lessonGroupId: string) {
-    return this.service.getByLessonGroup(+lessonGroupId);
+    return this.examservice.getByLessonGroup(+lessonGroupId);
   }
 
   @Post('pass')
-  @UseGuards(RoleGuard)
-  @Roles(UserRole.STUDENT)
+  @UseGuards(AuthGuard, RoleGuard)
+  @Roles('ADMIN')
   @ApiOperation({ summary: 'Examni topshirish (STUDENT)' })
   @ApiBody({
     schema: {
@@ -40,37 +41,38 @@ export class ExamsController {
     },
   })
   passExam(@Body() data: any, @Req() req: Request) {
-    const userId = req['user'].id;
-    return this.service.passExam(data, userId);
+    const userId = req['user'].sub;    
+    return this.examservice.passExam(data, userId);
   }
 
   @Get('lesson-group/details/:id')
-  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard, RoleGuard)
   @Roles(UserRole.MENTOR, UserRole.ADMIN)
   @ApiOperation({ summary: 'LessonGroup examlarining toliq tafsiloti (MENTOR, ADMIN)' })
   getGroupDetails(@Param('id') id: string) {
-    return this.service.getGroupDetails(+id);
+    return this.examservice.getGroupDetails(+id);
   }
 
   @Get('detail/:id')
-  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard, RoleGuard)
   @Roles(UserRole.MENTOR, UserRole.ADMIN)
   @ApiOperation({ summary: 'Bitta exam haqida toliq malumot' })
   getExam(@Param('id') id: string) {
-    return this.service.getExam(+id);
+    return this.examservice.getExam(+id);
   }
 
   @Post('create')
-  @UseGuards(RoleGuard)
-  @Roles(UserRole.ADMIN, UserRole.MENTOR)
+  @UseGuards(AuthGuard, RoleGuard)
+  @ApiBearerAuth()
+  @Roles('ADMIN', 'MENTOR')
   @ApiOperation({ summary: 'Bitta exam yaratish' })
-  @ApiBody({ type: CreateExamDto })
+  // @ApiBody({ type: CreateExamDto })
   create(@Body() dto: CreateExamDto) {
-    return this.service.create(dto);
+    return this.examservice.create(dto);
   }
 
   @Post('create/many')
-  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard, RoleGuard)
   @Roles(UserRole.ADMIN, UserRole.MENTOR)
   @ApiOperation({ summary: 'Kop examni birga yaratish' })
   @ApiBody({
@@ -91,42 +93,42 @@ export class ExamsController {
     },
   })
   createMany(@Body() body: { exams: CreateExamDto[] }) {
-    return this.service.createMany(body.exams);
+    return this.examservice.createMany(body.exams);
   }
 
   @Patch('update/:id')
-  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard, RoleGuard)
   @Roles(UserRole.ADMIN, UserRole.MENTOR)
   @ApiOperation({ summary: 'Examni tahrirlash' })
   @ApiParam({ name: 'id', type: Number })
-  @ApiBody({ type: CreateExamDto })
+  // @ApiBody({ type: CreateExamDto })
   update(@Param('id') id: string, @Body() dto: CreateExamDto) {
-    return this.service.update(+id, dto);
+    return this.examservice.update(+id, dto);
   }
 
   @Delete(':id')
-  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard, RoleGuard)
   @Roles(UserRole.ADMIN, UserRole.MENTOR)
   @ApiOperation({ summary: 'Examni ochirish' })
   @ApiParam({ name: 'id', type: Number })
   delete(@Param('id') id: string) {
-    return this.service.delete(+id);
+    return this.examservice.delete(+id);
   }
 
   @Get('results')
-  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard, RoleGuard)
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Barcha exam natijalari (ADMIN)' })
   getResults() {
-    return this.service.getAllResults();
+    return this.examservice.getAllResults();
   }
 
   @Get('results/lesson-group/:id')
-  @UseGuards(RoleGuard)
+  @UseGuards(AuthGuard, RoleGuard)
   @Roles(UserRole.MENTOR)
   @ApiOperation({ summary: 'LessonGroup boyicha natijalar (MENTOR)' })
   @ApiParam({ name: 'id', type: Number })
   getResultsByGroup(@Param('id') id: string) {
-    return this.service.getResultsByGroup(+id);
+    return this.examservice.getResultsByGroup(+id);
   }
 }

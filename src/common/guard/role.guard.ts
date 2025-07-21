@@ -21,7 +21,7 @@ export class RoleGuard implements CanActivate {
     if (!requiredRoles) return true;
 
     const request = context.switchToHttp().getRequest<Request>();
-    const user = (request as any).user;
+    const user = (request as any).user;    
 
     if (!user || !requiredRoles.includes(user.role)) {
       throw new ForbiddenException('Ruxsat yoq');

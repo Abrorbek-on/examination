@@ -25,13 +25,13 @@ export class ExamsService {
       if (!exam) continue;
 
       if (exam.answer === answer.selected) {
-        corrects++;
+        corrects+=1;
       } else {
-        wrongs++;
+        wrongs+=1;
       }
     }
 
-    const total = exams.length;
+    const total = await this.prisma.exam.count();
     const passed = corrects >= Math.ceil(total * 0.7);
 
     await this.prisma.examResult.create({
