@@ -1,5 +1,7 @@
 import {
   Controller, Get, Post, Patch, Delete, Param, Body, UseGuards, Req,
+  Query,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   ApiTags, ApiOperation, ApiParam, ApiBody, ApiBearerAuth,
@@ -41,7 +43,7 @@ export class ExamsController {
     },
   })
   passExam(@Body() data: any, @Req() req: Request) {
-    const userId = req['user'].sub;    
+    const userId = req['user'].sub;
     return this.examservice.passExam(data, userId);
   }
 
@@ -119,13 +121,27 @@ export class ExamsController {
   @UseGuards(AuthGuard, RoleGuard)
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Barcha exam natijalari (ADMIN)' })
-  getResults() {
-    return this.examservice.getAllResults();
+  getResults(
+    @Query('offset') offset: string,
+    @Query('limit') limit: string,
+    @Query('lessonGroupId') lessonGroupId: string,
+  ) {
+    if (!offset || !limit || !lessonGroupId) {
+      throw new BadRequestException('offset, limit va lessonGroupId majburiy');
+    }
+
+    return this.examservice.getAllResults({
+      offset: +offset,
+      limit: +limit,
+      lessonGroupId: +lessonGroupId,
+    });
   }
+
+
 
   @Get('results/lesson-group/:id')
   @UseGuards(AuthGuard, RoleGuard)
-  @Roles(UserRole.MENTOR)
+  @Roles(UserRole.MENTOR, UserRole.ADMIN)
   @ApiOperation({ summary: 'LessonGroup boyicha natijalar (MENTOR)' })
   @ApiParam({ name: 'id', type: Number })
   getResultsByGroup(@Param('id') id: string) {

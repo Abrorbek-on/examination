@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Delete, UseGuards } from "@nestjs/common"
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from "@nestjs/swagger"
+import { Controller, Get, Post, Body, Patch, Delete, UseGuards, Param, Query } from "@nestjs/common"
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from "@nestjs/swagger"
 import { AuthGuard } from "src/common/global/guard"
 import { RoleGuard } from "src/common/guard/role.guard"
 import { Roles } from "src/common/global/decarator"
@@ -10,30 +10,44 @@ import { UpdateLessonGroupDto } from "./dto/update-lesson-group.dto/update-lesso
 @ApiTags("Lesson Groups")
 @Controller("lesson-group")
 export class LessonGroupsController {
-  constructor(private readonly lessonGroupsService: LessonGroupsService) {}
+  constructor(private readonly lessonGroupsService: LessonGroupsService) { }
 
-  @Get("all/:course_id")
-  @ApiOperation({ summary: "Kurs bo'yicha barcha dars guruhlarini olish" })
-  @ApiResponse({ status: 200, description: "Dars guruhlari royxati" })
-  findAll(courseId: string) {
-    return this.lessonGroupsService.findAll(+courseId)
+  @Get('list/:courseId')
+  findAll(
+    @Param('courseId') courseId: number,
+    @Query('offset') offset?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const parsedOffset = offset ? Number(offset) : 0;
+    const parsedLimit = limit ? Number(limit) : 10;
+
+    return this.lessonGroupsService.findAll(+courseId, parsedOffset, parsedLimit);
   }
+
 
   @Get("mine-all/:course_id")
   @UseGuards(AuthGuard, RoleGuard)
   @ApiBearerAuth()
-  @Roles("STUDENT")
-  @ApiOperation({ summary: "Student uchun kurs bo'yicha dars guruhlarini olish" })
-  @ApiResponse({ status: 200, description: "Student dars guruhlari" })
-  findMineAll(courseId: string) {
-    return this.lessonGroupsService.findAll(+courseId)
+  @Roles("ADMIN")
+  @ApiOperation({ summary: "ADMIN uchun kurs bo'yicha dars guruhlarini olish" })
+  @ApiResponse({ status: 200, description: "ADMIN dars guruhlari" })
+  findMineAll(
+    @Param('course_id') courseId: string,
+    @Query('offset') offset?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const parsedOffset = offset ? Number(offset) : 0;
+    const parsedLimit = limit ? Number(limit) : 10;
+
+    return this.lessonGroupsService.findAll(+courseId, parsedOffset, parsedLimit);
   }
 
-  @Get("detail/:id")
+
   @ApiOperation({ summary: "Dars guruhi tafsilotlarini olish" })
   @ApiResponse({ status: 200, description: "Dars guruhi tafsilotlari" })
-  findOne(id: string) {
-    return this.lessonGroupsService.findOne(+id)
+  @Get('first/:course_id')
+  findFirstByCourse(@Param('course_id') courseId: string) {
+    return this.lessonGroupsService.findOne(+courseId);
   }
 
   @Post()
@@ -62,7 +76,9 @@ export class LessonGroupsController {
   @Roles("MENTOR", "ADMIN")
   @ApiOperation({ summary: "Dars guruhini o'chirish" })
   @ApiResponse({ status: 200, description: "Dars guruhi o'chirildi" })
-  remove(id: string) {
-    return this.lessonGroupsService.remove(+id)
+  @ApiParam({ name: 'id', type: Number, description: "O'chiriladigan dars guruhi ID raqami" })
+  remove(@Param('id') id: string) {
+    return this.lessonGroupsService.remove(+id);
   }
+
 }

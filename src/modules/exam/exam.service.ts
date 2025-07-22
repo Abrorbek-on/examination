@@ -4,7 +4,7 @@ import { CreateExamDto } from './dto/create-exam.dto/create-exam.dto';
 
 @Injectable()
 export class ExamsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async getByLessonGroup(lessonGroupId: number) {
     return this.prisma.exam.findMany({
@@ -25,9 +25,9 @@ export class ExamsService {
       if (!exam) continue;
 
       if (exam.answer === answer.selected) {
-        corrects+=1;
+        corrects += 1;
       } else {
-        wrongs+=1;
+        wrongs += 1;
       }
     }
 
@@ -91,9 +91,27 @@ export class ExamsService {
     });
   }
 
-  async getAllResults() {
-    return this.prisma.examResult.findMany();
+  async getAllResults(query: {
+    offset: number;
+    limit: number;
+    lessonGroupId: number;
+  }) {
+    const { offset, limit, lessonGroupId } = query;
+
+    return this.prisma.examResult.findMany({
+      where: {
+        lessonGroupId,
+      },
+      skip: offset,
+      take: limit,
+      orderBy: { id: 'desc' },
+      include: {
+        user: true,
+      },
+    });
   }
+
+
 
   async getResultsByGroup(groupId: number) {
     return this.prisma.examResult.findMany({

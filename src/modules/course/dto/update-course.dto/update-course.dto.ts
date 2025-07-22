@@ -1,47 +1,12 @@
-import { ApiPropertyOptional } from "@nestjs/swagger";
-import { CourseLevel } from "@prisma/client";
-import { Type } from "class-transformer";
-import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
+import { PartialType } from '@nestjs/swagger';
+import { IsEnum, IsOptional } from 'class-validator';
+import { CreateCourseDto } from '../create-course.dto/create-course.dto';
+import { CourseLevel } from '@prisma/client';
 
-export class UpdateCourseDto {
-  @ApiPropertyOptional()
+export class UpdateCourseDto extends PartialType(CreateCourseDto) {
   @IsOptional()
-  @IsString()
-  name?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  about?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  price?: number;
-
-  @ApiPropertyOptional({
-    type: 'string',
-    format: 'binary',
+  @IsEnum(CourseLevel, {
+    message: 'level faqat BEGINNER, INTERMEDIATE yoki ADVANCED bo\'lishi mumkin',
   })
-  @IsOptional()
-  banner?: any;
-
-  @ApiPropertyOptional({
-    type: 'string',
-    format: 'binary',
-  })
-  @IsOptional()
-  introVideo?: any;
-
-  @ApiPropertyOptional({ enum: CourseLevel })
-  @IsOptional()
-  @IsEnum(CourseLevel)
   level?: CourseLevel;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  categoryId?: number;
 }

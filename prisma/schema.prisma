@@ -253,6 +253,7 @@ model Exam {
   createdAt     DateTime   @default(now())
 
   lessonGroup LessonGroup @relation(fields: [lessonGroupId], references: [id])
+  
 }
 
 model ExamResult {

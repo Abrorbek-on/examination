@@ -6,7 +6,9 @@ import {
     Param,
     Patch,
     Post,
+    Query,
     UseGuards,
+    ValidationPipe,
 } from '@nestjs/common';
 import { UsersService } from './user.service';
 import {
@@ -20,6 +22,7 @@ import { Roles } from 'src/common/global/decarator';
 import { RoleGuard } from 'src/common/guard/role.guard';
 import { CreateUserDto } from './dto/create-user.dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto/update-user.dto';
+import { UsersQueryDto } from './dto/user.query.dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -32,8 +35,8 @@ export class UsersController {
     @Roles('ADMIN')
     @ApiOperation({ summary: 'Barcha foydalanuvchilarni olish' })
     @ApiResponse({ status: 200, description: 'Barcha foydalanuvchilar royxati' })
-    getAllUsers() {
-        return this.usersService.findAll();
+    getAllUsers(@Query(new ValidationPipe({ transform: true })) query: UsersQueryDto) {
+        return this.usersService.findAll(query);
     }
 
     @Get('single/:id')
@@ -60,10 +63,18 @@ export class UsersController {
     @UseGuards(AuthGuard, RoleGuard)
     @ApiBearerAuth()
     @Roles('ADMIN', 'ASSISTANT')
-    @ApiOperation({ summary: 'Mentorlar royxatini olish' })
-    @ApiResponse({ status: 200, description: 'Mentorlar royxati' })
-    getMentors() {
-        return this.usersService.findAllMentors();
+    @ApiOperation({ summary: 'Mentorlar ro‘yxatini olish' })
+    @ApiResponse({ status: 200, description: 'Mentorlar ro‘yxati' })
+    getMentors(
+        @Query('offset') offset: string,
+        @Query('limit') limit: string,
+        @Query('search') search: string,
+    ) {
+        return this.usersService.findAllMentors({
+            offset: Number(offset),
+            limit: Number(limit),
+            search,
+        });
     }
 
     @Get('mentors/:id')
@@ -85,7 +96,7 @@ export class UsersController {
 
     @Post()
     @UseGuards(AuthGuard, RoleGuard)
-    @ApiBearerAuth()        
+    @ApiBearerAuth()
     @Roles('ADMIN')
     @ApiOperation({ summary: 'Yangi user yaratish (Admin)' })
     @ApiResponse({ status: 201, description: 'User yaratildi' })

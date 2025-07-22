@@ -11,14 +11,17 @@ import { UpdateQuestionDto } from './dto/update.dto';
 export class QuestionService {
   constructor(private prisma: PrismaService) {}
 
-  async getAll() {
-    return this.prisma.question.findMany({
-      include: {
-        user: true,
-        course: true,
-      },
-    });
-  }
+  async getAll(offset = 0, limit = 10) {
+  return this.prisma.question.findMany({
+    skip: offset,
+    take: limit,
+    include: {
+      user: true,
+      course: true,
+    },
+  });
+}
+
 
   async getOne(id: number) {
     const question = await this.prisma.question.findUnique({

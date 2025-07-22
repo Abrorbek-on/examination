@@ -1,54 +1,41 @@
-import { IsString, IsNumber, IsEnum, IsBoolean, IsOptional } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional, ApiConsumes } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsBoolean, IsEnum, IsInt, IsNumber, IsString } from 'class-validator';
 import { CourseLevel } from '@prisma/client';
-import { Type } from 'class-transformer';
 
 export class CreateCourseDto {
-  @ApiProperty({ example: 'JavaScript Asoslari' })
+  @ApiProperty({ example: 'NestJS Bootcamp', description: 'Kurs nomi' })
   @IsString()
   name: string;
 
-  @ApiProperty({ example: "Kurs haqida ma'lumot" })
+  @ApiProperty({ example: 'Bu kurs NestJS framework haqida', description: 'Kurs haqida qisqacha maʼlumot' })
   @IsString()
   about: string;
 
-  @ApiProperty({ example: 299000 })
+  @ApiProperty({ example: 120000, description: 'Kurs narxi' })
   @IsNumber()
-  @Type(() => Number)
   price: number;
 
-  @ApiProperty({
-    type: 'string',
-    format: 'binary',
-    description: 'Kurs banner rasmi',
-  })
-  @IsOptional()
-  banner: any;
+  @ApiProperty({ example: 'https://cdn.example.com/nestjs.jpg', description: 'Banner rasmi URL' })
+  @IsString()
+  banner: string;
 
-  @ApiProperty({
-    type: 'string',
-    format: 'binary',
-    description: 'Kirish video',
-  })
-  @IsOptional()
-  introVideo: any;
+  @ApiProperty({ example: 'https://cdn.example.com/intro.mp4', description: 'Kirish videosi URL' })
+  @IsString()
+  introVideo: string;
 
-  @ApiProperty({ enum: CourseLevel })
+  @ApiProperty({ example: 'BEGINNER', enum: CourseLevel, description: 'Kurs darajasi' })
   @IsEnum(CourseLevel)
   level: CourseLevel;
 
-  @ApiProperty({ example: 1 })
-  @IsNumber()
-  @Type(() => Number)
+  @ApiProperty({ example: 2, description: 'Category ID (foreign key)' })
+  @IsInt()
   categoryId: number;
 
-  @ApiProperty({ example: 5, description: 'Mentor ID' })
-  @IsNumber()
-  @Type(() => Number)
+  @ApiProperty({ example: 5, description: 'Mentor ID (foreign key)' })
+  @IsInt()
   mentorId: number;
 
-  @ApiPropertyOptional({ example: true })
-  @IsOptional()
+  @ApiProperty({ example: true, description: 'Kurs eʼlon qilinganmi yo‘qmi' })
   @IsBoolean()
-  published?: boolean;
+  published: boolean;
 }

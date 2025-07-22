@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { HomeworkSubStatus } from '@prisma/client';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
@@ -28,10 +29,14 @@ export class HomeworkController {
 
   @Get()
   @ApiOperation({ summary: 'Barcha uyga vazifalarni olish' })
-  @ApiResponse({ status: 200, description: 'Barcha uyga vazifalar royxati' })
-  getAll() {
-    return this.service.getAll();
+  @ApiResponse({ status: 200, description: 'Barcha uyga vazifalar ro‘yxati' })
+  getAll(
+    @Query('offset') offset: string,
+    @Query('limit') limit: string
+  ) {
+    return this.service.getAll(+offset || 0, +limit || 10);
   }
+
 
   @Get(':id')
   @ApiOperation({ summary: 'ID orqali uyga vazifani olish' })
@@ -64,12 +69,13 @@ export class HomeworkController {
     return this.service.getMySubmission(+userId, +lessonId);
   }
 
-  @Post('submit/:id')
+  @Post('submit/:lessonId')
   @ApiOperation({ summary: 'Uyga vazifa topshirish' })
   @ApiResponse({ status: 201, description: 'Vazifa topshirildi' })
-  submit(@Param('id') id: number, @Body() body: any) {
-    return this.service.submit(+id, body);
+  submit(@Param('lessonId') lessonId: number, @Body() body: any) {
+    return this.service.submit(+lessonId, body);
   }
+
 
   @Post('check')
   @ApiOperation({ summary: 'Uyga vazifani tekshirish (status berish)' })

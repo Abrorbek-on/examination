@@ -27,13 +27,17 @@ import { UpdateQuestionDto } from './dto/update.dto';
 @ApiTags('Questions')
 @Controller('questions')
 export class QuestionController {
-  constructor(private readonly questionService: QuestionService) {}
+  constructor(private readonly questionService: QuestionService) { }
 
-  @ApiOperation({ summary: 'Barcha savollarni olish' })
+  @ApiOperation({ summary: 'Barcha savollarni olish (pagination bilan)' })
   @Get()
-  getAll() {
-    return this.questionService.getAll();
+  getAll(
+    @Query('offset') offset: string,
+    @Query('limit') limit: string,
+  ) {
+    return this.questionService.getAll(+offset, +limit);
   }
+
 
   @ApiOperation({ summary: 'ID boyicha bitta savol olish' })
   @Get(':id')

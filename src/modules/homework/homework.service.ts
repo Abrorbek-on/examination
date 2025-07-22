@@ -4,15 +4,19 @@ import { PrismaService } from 'src/core/database/prisma.service';
 
 @Injectable()
 export class HomeworkService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(body: any) {
     return this.prisma.homework.create({ data: body });
   }
 
-  async getAll() {
-    return this.prisma.homework.findMany();
+  async getAll(offset: number, limit: number) {
+    return this.prisma.homework.findMany({
+      skip: offset,
+      take: limit,
+    });
   }
+
 
   async getById(id: number) {
     return this.prisma.homework.findUnique({ where: { id } });

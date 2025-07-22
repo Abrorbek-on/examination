@@ -8,13 +8,14 @@ import {
   Param,
   Request,
   UseGuards,
+  Query,
 } from '@nestjs/common';
+import { UserRole } from '@prisma/client';
 import { CoursesService } from './course.service';
 import { CreateCourseDto } from './dto/create-course.dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto/update-course.dto';
 import { RoleGuard } from 'src/common/guard/role.guard';
 import { Roles } from 'src/common/global/decarator';
-import { AuthGuard } from 'src/common/global/guard';
 
 import {
   ApiTags,
@@ -22,19 +23,48 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiParam,
+  ApiQuery,
 } from '@nestjs/swagger';
+import { AuthGuard } from 'src/common/global/guard';
 
 @ApiTags('Courses')
 @ApiBearerAuth()
 @Controller('api/courses')
 export class CoursesController {
-  constructor(private readonly service: CoursesService) {}
+  constructor(private readonly service: CoursesService) { }
 
+  @ApiOperation({ summary: 'Filter va pagination bilan savollar ro‘yxati' })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({ name: 'level', required: false, type: String })
+  @ApiQuery({ name: 'categoryId', required: false, type: Number })
+  @ApiQuery({ name: 'mentorId', required: false, type: Number })
+  @ApiQuery({ name: 'priceMin', required: false, type: Number })
+  @ApiQuery({ name: 'priceMax', required: false, type: Number })
+  @ApiQuery({ name: 'offset', required: false, type: Number })
+  @ApiQuery({ name: 'limit', required: false, type: Number })
   @Get()
-  @ApiOperation({ summary: 'Hamma nashr qilingan kurslarni olish' })
-  getAll() {
-    return this.service.getAllPublished();
+  getAll(
+    @Query('search') search?: string,
+    @Query('level') level?: string,
+    @Query('categoryId') categoryId?: number,
+    @Query('mentorId') mentorId?: number,
+    @Query('priceMin') priceMin?: number,
+    @Query('priceMax') priceMax?: number,
+    @Query('offset') offset = 0,
+    @Query('limit') limit = 10,
+  ) {
+    return this.service.getAll({
+      search,
+      level,
+      categoryId,
+      mentorId,
+      priceMin,
+      priceMax,
+      offset: +offset,
+      limit: +limit,
+    });
   }
+
 
   @Get('single/:id')
   @ApiOperation({ summary: 'Kursni ID orqali olish (faqat nashr qilingan)' })
@@ -45,39 +75,98 @@ export class CoursesController {
   @Get('single-full/:id')
   @UseGuards(AuthGuard, RoleGuard)
   @Roles('ADMIN', 'MENTOR', 'ASSISTANT')
-  @ApiOperation({ summary: 'Kurs haqida toliq maʼlumot (rolga asoslangan)' })
+  @ApiOperation({ summary: 'Kurs haqida toliq malumot (rolga asoslangan)' })
   getFull(@Param('id') id: string) {
     return this.service.getFull(+id);
   }
 
+  @ApiQuery({ name: 'offset', required: false, type: Number, example: 0 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 8 })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({
+    name: 'level',
+    required: false,
+    type: String,
+    enum: [
+      'BEGINNER',
+      'PRE_INTERMEDIATE',
+      'INTERMEDIATE',
+      'UPPER_INTERMEDIATE',
+      'ADVANCED',
+    ],
+  })
+  @ApiQuery({ name: 'category_id', required: false, type: Number })
+  @ApiQuery({ name: 'mentor_id', required: false, type: Number })
+  @ApiQuery({ name: 'price_min', required: false, type: Number })
+  @ApiQuery({ name: 'price_max', required: false, type: Number })
+  @ApiQuery({ name: 'published', required: false, type: Boolean })
   @Get('all')
   @UseGuards(AuthGuard, RoleGuard)
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Barcha kurslarni olish (admin)' })
-  getAllAdmin() {
-    return this.service.getAllAdmin();
+  getAllAdmin(
+    @Query('search') search?: string,
+    @Query('level') level?: string,
+    @Query('category_id') categoryId?: number,
+    @Query('mentor_id') mentorId?: number,
+    @Query('price_min') priceMin?: number,
+    @Query('price_max') priceMax?: number,
+    @Query('published') published?: boolean,
+    @Query('offset') offset: number = 0,
+    @Query('limit') limit: number = 10,
+  ) {
+    return this.service.getAllAdmin({
+      search,
+      level,
+      categoryId,
+      mentorId,
+      priceMin,
+      priceMax,
+      published,
+      offset: +offset,
+      limit: +limit,
+    });
   }
+
 
   @Get('my')
   @UseGuards(AuthGuard, RoleGuard)
   @Roles('ADMIN', 'MENTOR')
-  @ApiOperation({ summary: 'Mentorning oz kurslarini olish' })
-  getMyCourses(@Request() req) {
-    return this.service.getMyCourses(req.user.id);
+  @ApiOperation({ summary: 'Mentorning o‘z kurslarini olish' })
+  getMyCourses(
+    @Request() req,
+    @Query('search') search?: string,
+    @Query('level') level?: string,
+    @Query('category_id') categoryId?: string,
+    @Query('price_min') priceMin?: string,
+    @Query('price_max') priceMax?: string,
+    @Query('offset') offset?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.service.getMyCourses(req.user.id, {
+      search,
+      level,
+      categoryId: categoryId ? +categoryId : undefined,
+      priceMin: priceMin ? +priceMin : undefined,
+      priceMax: priceMax ? +priceMax : undefined,
+      offset: offset ? +offset : 0,
+      limit: limit ? +limit : 10,
+    });
   }
+
 
   @Get('mentor/:id')
   @UseGuards(AuthGuard, RoleGuard)
   @Roles('ADMIN')
-  @ApiOperation({ summary: 'Berilgan mentorga tegishli kurslar' })
+  @ApiOperation({ summary: 'Berilgan mentorga tegishli kurslarni olish' })
   getMentorCourses(@Param('id') id: string) {
     return this.service.getMentorCourses(+id);
   }
 
   @Get('my/assigned')
   @UseGuards(AuthGuard, RoleGuard)
-  @Roles('ASSISTANT')
-  @ApiOperation({ summary: 'Assistantga biriktirilgan kurslar' })
+  @Roles('ADMIN', 'MENTOR')
+  @ApiOperation({ summary: 'Assistantga biriktirilgan kurslarni olish' })
   getAssignedCourses(@Request() req) {
     return this.service.getAssignedCourses(req.user.id);
   }
@@ -85,7 +174,7 @@ export class CoursesController {
   @Get(':courseId/assistants')
   @UseGuards(AuthGuard, RoleGuard)
   @Roles('ADMIN', 'MENTOR')
-  @ApiOperation({ summary: 'Kursga biriktirilgan assistantlar' })
+  @ApiOperation({ summary: 'Kursga biriktirilgan assistantlarni olish' })
   getAssistants(@Param('courseId') courseId: string) {
     return this.service.getAssistants(+courseId);
   }
@@ -125,6 +214,7 @@ export class CoursesController {
   @Post('create')
   @UseGuards(AuthGuard, RoleGuard)
   @Roles('ADMIN', 'MENTOR')
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Yangi kurs yaratish' })
   @ApiBody({ type: CreateCourseDto })
   create(@Body() dto: CreateCourseDto) {
@@ -136,7 +226,9 @@ export class CoursesController {
   @Roles('ADMIN', 'MENTOR')
   @ApiOperation({ summary: 'Kursni tahrirlash' })
   @ApiParam({ name: 'id', type: Number })
-  @ApiBody({ type: UpdateCourseDto })
+  @ApiBody({
+    type: UpdateCourseDto,
+  })
   update(@Param('id') id: string, @Body() dto: UpdateCourseDto) {
     return this.service.update(+id, dto);
   }
