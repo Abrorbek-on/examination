@@ -13,10 +13,9 @@ async function bootstrap() {
       forbidNonWhitelisted: false,
     }),
   );
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
   const config = new DocumentBuilder()
-    .setTitle('LMS API') 
+    .setTitle('LMS API')
     .setDescription('Learning Management System API documentation')
     .setVersion('1.0')
     .addBearerAuth()
@@ -25,11 +24,11 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document, {
     swaggerOptions: {
-      persistAuthorization: true, 
+      persistAuthorization: true,
     },
   });
 
   await app.listen(3001);
-  console.log('🚀 Swagger: http://localhost:3001/api');
+  console.log('Swagger: http://localhost:3001/api');
 }
 bootstrap();

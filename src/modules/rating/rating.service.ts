@@ -49,21 +49,11 @@ export class RatingService {
   async create(dto: CreateRatingDto) {
     const { userId, courseId, rate, comment } = dto;
 
-    if (!userId || !courseId) {
-      throw new BadRequestException('userId yoki courseId yuborilmadi');
-    }
-
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    const course = await this.prisma.course.findUnique({ where: { id: courseId } });
-
-    if (!user || !course) {
-      throw new BadRequestException('userId yoki courseId notogri');
-    }
-
     return this.prisma.rating.create({
       data: { userId, courseId, rate, comment },
     });
   }
+
 
   async delete(id: number) {
     const rating = await this.prisma.rating.findUnique({ where: { id } });

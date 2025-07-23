@@ -465,19 +465,19 @@ export class CoursesService {
 
 
   async update(id: number, dto: UpdateCourseDto) {
-  const course = await this.prisma.course.findUnique({ where: { id } });
-  if (!course) throw new NotFoundException(`Course not found (id: ${id})`);
+    const course = await this.prisma.course.findUnique({ where: { id } });
+    if (!course) throw new NotFoundException(`Course not found (id: ${id})`);
 
-  const [categoryExists, mentorIsValid] = await Promise.all([
-    dto.categoryId ? this.prisma.courseCategory.count({ where: { id: dto.categoryId } }) : 1,
-    dto.mentorId ? this.prisma.user.count({ where: { id: dto.mentorId, role: 'MENTOR' } }) : 1,
-  ]);
+    const [categoryExists, mentorIsValid] = await Promise.all([
+      dto.categoryId ? this.prisma.courseCategory.count({ where: { id: dto.categoryId } }) : 1,
+      dto.mentorId ? this.prisma.user.count({ where: { id: dto.mentorId, role: 'MENTOR' } }) : 1,
+    ]);
 
-  if (!categoryExists) throw new NotFoundException(`Kategoriya topilmadi (id: ${dto.categoryId})`);
-  if (!mentorIsValid) throw new NotFoundException(`Mentor topilmadi yoki notogri (id: ${dto.mentorId})`);
+    if (!categoryExists) throw new NotFoundException(`Kategoriya topilmadi (id: ${dto.categoryId})`);
+    if (!mentorIsValid) throw new NotFoundException(`Mentor topilmadi yoki notogri (id: ${dto.mentorId})`);
 
-  return this.prisma.course.update({ where: { id }, data: dto });
-}
+    return this.prisma.course.update({ where: { id }, data: dto });
+  }
 
 
 
