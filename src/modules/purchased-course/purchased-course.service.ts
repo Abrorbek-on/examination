@@ -108,6 +108,7 @@ export class PurchasedCourseService {
         paidVia: dto.paidVia,
         purchasedAt: new Date(),
       },
-    });    
+    });
+    
   }
 }

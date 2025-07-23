@@ -8,7 +8,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: dars2
+      POSTGRES_DB: exam
     ports:
       - "5430:5432"
     volumes:
@@ -23,7 +23,7 @@ services:
 
   app:
     build: .
-    container_name: nest_dars2
+    container_name: nest_exam
     restart: always
     ports:
       - "3005:3000"
@@ -34,6 +34,7 @@ services:
       - redis
     command: >
       sh -c "
+        npx prisma generate &&
         npx prisma migrate deploy &&
         npm run start:prod
       "

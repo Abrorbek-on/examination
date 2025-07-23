@@ -297,3 +297,4 @@ model QuestionAnswer {
   question Question @relation(fields: [questionId], references: [id])
   user     User     @relation(fields: [userId], references: [id])
 }
+
