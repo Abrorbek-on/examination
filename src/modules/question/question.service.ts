@@ -9,18 +9,18 @@ import { UpdateQuestionDto } from './dto/update.dto';
 
 @Injectable()
 export class QuestionService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async getAll(offset = 0, limit = 10) {
-  return this.prisma.question.findMany({
-    skip: offset,
-    take: limit,
-    include: {
-      user: true,
-      course: true,
-    },
-  });
-}
+    return this.prisma.question.findMany({
+      skip: offset,
+      take: limit,
+      include: {
+        user: true,
+        course: true,
+      },
+    });
+  }
 
 
   async getOne(id: number) {
@@ -57,30 +57,62 @@ export class QuestionService {
   }
 
   async update(id: number, dto: UpdateQuestionDto) {
-    await this.getOne(id); 
+    await this.getOne(id);
+
+    if (dto.userId) {
+      const user = await this.prisma.user.findUnique({
+        where: { id: dto.userId },
+      });
+      if (!user) {
+        throw new BadRequestException('Bunday foydalanuvchi (user) mavjud emas');
+      }
+    }
+
+    if (dto.courseId) {
+      const course = await this.prisma.course.findUnique({
+        where: { id: dto.courseId },
+      });
+      if (!course) {
+        throw new BadRequestException('Bunday kurs mavjud emas');
+      }
+    }
+
     return this.prisma.question.update({
       where: { id },
       data: dto,
     });
   }
 
+
   async delete(id: number) {
-    await this.getOne(id); 
+    await this.getOne(id);
     return this.prisma.question.delete({
       where: { id },
     });
   }
 
   async getByUser(userId: number) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('Bunday foydalanuvchi mavjud emas');
+    }
+
     return this.prisma.question.findMany({
       where: { userId },
     });
   }
+
   async getByCourse(courseId: number) {
+    const course = await this.prisma.course.findUnique({ where: { id: courseId } });
+    if (!course) {
+      throw new NotFoundException('Bunday kurs mavjud emas');
+    }
+
     return this.prisma.question.findMany({
       where: { courseId },
     });
   }
+
 
   async uploadFile(id: number, filename: string) {
     await this.getOne(id);
@@ -91,6 +123,10 @@ export class QuestionService {
   }
 
   async search(query: string) {
+    if (!query || query.trim() === '') {
+      throw new BadRequestException('Qidiruv sorovi bosh bolishi mumkin emas');
+    }
+
     return this.prisma.question.findMany({
       where: {
         text: {
@@ -100,4 +136,5 @@ export class QuestionService {
       },
     });
   }
+
 }

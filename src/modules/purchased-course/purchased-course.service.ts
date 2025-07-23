@@ -75,14 +75,31 @@ export class PurchasedCourseService {
   }
 
   async getStudents(courseId: number) {
+    const course = await this.prisma.course.findUnique({
+      where: { id: courseId },
+    });
+
+    if (!course) {
+      throw new BadRequestException('Course not found');
+    }
+
     return this.prisma.purchasedCourse.findMany({
       where: { courseId },
-      include: { user: true },
+      include: {
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            phone: true,
+          },
+        },
+      },
     });
   }
 
 
-  async create(dto: CreatePurchasedCourseDto) {
+
+    async create(dto: CreatePurchasedCourseDto) {
     return this.prisma.purchasedCourse.create({
       data: {
         userId: dto.userId,
@@ -93,5 +110,4 @@ export class PurchasedCourseService {
       },
     });
   }
-
 }

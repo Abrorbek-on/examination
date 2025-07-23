@@ -15,8 +15,8 @@ export class LessonsController {
   @Get('single/:lessonId')
   @UseGuards(AuthGuard, RoleGuard)
   @ApiBearerAuth()
-  @Roles('STUDENT')
-  @ApiOperation({ summary: 'Darsni ID orqali olish (Student)' })
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Darsni ID orqali olish (ADMIN)' })
   @ApiResponse({ status: 200, description: 'Topilgan dars' })
   getSingle(@Param('lessonId') lessonId: string) {
     return this.lessonsService.findOne(+lessonId);

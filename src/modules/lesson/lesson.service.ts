@@ -1,20 +1,29 @@
-import { Injectable, NotFoundException } from "@nestjs/common"
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common"
 import { PrismaService } from "src/core/database/prisma.service"
 import { CreateLessonDto } from "./dto/create-lesson.dto/create-lesson.dto"
 import { UpdateLessonDto } from "./dto/update-lesson.dto/update-lesson.dto"
 
 @Injectable()
 export class LessonsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(createLessonDto: CreateLessonDto) {
+    const group = await this.prisma.lessonGroup.findUnique({
+      where: { id: createLessonDto.groupId },
+    });
+
+    if (!group) {
+      throw new BadRequestException('Bunday groupId mavjud emas');
+    }
+
     return this.prisma.lesson.create({
       data: createLessonDto,
       include: {
         group: true,
       },
-    })
+    });
   }
+
 
   async findOne(id: number) {
     const lesson = await this.prisma.lesson.findUnique({
@@ -123,7 +132,15 @@ export class LessonsService {
   }
 
   async remove(id: number) {
-    await this.findOne(id)
-    return this.prisma.lesson.delete({ where: { id } })
+    await this.findOne(id);
+
+    await this.prisma.homework.deleteMany({
+      where: { lessonId: id },
+    });
+
+    return this.prisma.lesson.delete({
+      where: { id },
+    });
   }
+
 }

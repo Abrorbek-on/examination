@@ -4,30 +4,30 @@ import { CreateLessonFileDto } from "./dto/upload-file.dto/upload-file.dto"
 
 @Injectable()
 export class LessonFilesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(createLessonFileDto: CreateLessonFileDto) {
-  const lessonExists = await this.prisma.lesson.findUnique({ where: { id: createLessonFileDto.lessonId } });
-  if (!lessonExists) {
-    throw new NotFoundException('Lesson not found');
-  }
+    const lessonExists = await this.prisma.lesson.findUnique({ where: { id: createLessonFileDto.lessonId } });
+    if (!lessonExists) {
+      throw new NotFoundException('Lesson not found');
+    }
 
-  return this.prisma.lessonFile.create({
-    data: createLessonFileDto,
-    include: {
-      lesson: {
-        select: {
-          id: true,
-          name: true,
+    return this.prisma.lessonFile.create({
+      data: createLessonFileDto,
+      include: {
+        lesson: {
+          select: {
+            id: true,
+            name: true,
+          },
         },
       },
-    },
-  });
-}
+    });
+  }
 
 
   async findByLesson(lessonId: number) {
-    return this.prisma.lessonFile.findMany({
+    const files = await this.prisma.lessonFile.findMany({
       where: { lessonId },
       include: {
         lesson: {
@@ -38,10 +38,17 @@ export class LessonFilesService {
         },
       },
       orderBy: {
-        createdAt: "desc",
+        createdAt: 'desc',
       },
-    })
+    });
+
+    if (!files.length) {
+      throw new NotFoundException(`Ushbu ID bilan dars fayllari topilmadi: ${lessonId}`);
+    }
+
+    return files;
   }
+
 
   async findOne(id: number) {
     const lessonFile = await this.prisma.lessonFile.findUnique({

@@ -165,19 +165,71 @@ export class CoursesController {
 
   @Get('my/assigned')
   @UseGuards(AuthGuard, RoleGuard)
-  @Roles('ADMIN', 'MENTOR')
+  @Roles('ADMIN', 'MENTOR', 'ASSISTANT')
   @ApiOperation({ summary: 'Assistantga biriktirilgan kurslarni olish' })
-  getAssignedCourses(@Request() req) {
-    return this.service.getAssignedCourses(req.user.id);
+  @ApiQuery({ name: 'offset', required: false, type: Number, example: 0 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 8 })
+  @ApiQuery({ name: 'search', required: false, type: String })
+  @ApiQuery({
+    name: 'level',
+    required: false,
+    type: String,
+    enum: [
+      'BEGINNER',
+      'PRE_INTERMEDIATE',
+      'INTERMEDIATE',
+      'UPPER_INTERMEDIATE',
+      'ADVANCED',
+    ],
+  })
+  @ApiQuery({ name: 'category_id', required: false, type: Number })
+  @ApiQuery({ name: 'mentor_id', required: false, type: Number })
+  @ApiQuery({ name: 'price_min', required: false, type: Number })
+  @ApiQuery({ name: 'price_max', required: false, type: Number })
+  @ApiQuery({ name: 'published', required: false, type: Boolean })
+  getAssignedCourses(
+    @Request() req,
+    @Query('offset') offset?: string,
+    @Query('limit') limit?: string,
+    @Query('search') search?: string,
+    @Query('level') level?: string,
+    @Query('category_id') categoryId?: string,
+    @Query('mentor_id') mentorId?: string,
+    @Query('price_min') priceMin?: string,
+    @Query('price_max') priceMax?: string,
+    @Query('published') published?: string,
+  ) {
+    return this.service.getAssignedCourses(req.user.id, {
+      offset: offset ? +offset : 0,
+      limit: limit ? +limit : 10,
+      search,
+      level,
+      categoryId: categoryId ? +categoryId : undefined,
+      mentorId: mentorId ? +mentorId : undefined,
+      priceMin: priceMin ? +priceMin : undefined,
+      priceMax: priceMax ? +priceMax : undefined,
+      published: published !== undefined ? published === 'true' : undefined,
+    });
   }
+
 
   @Get(':courseId/assistants')
   @UseGuards(AuthGuard, RoleGuard)
   @Roles('ADMIN', 'MENTOR')
   @ApiOperation({ summary: 'Kursga biriktirilgan assistantlarni olish' })
-  getAssistants(@Param('courseId') courseId: string) {
-    return this.service.getAssistants(+courseId);
+  @ApiQuery({ name: 'offset', required: false, type: Number, example: 0 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  getAssistants(
+    @Param('courseId') courseId: string,
+    @Query('offset') offset?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.service.getAssistants(+courseId, {
+      offset: offset ? +offset : 0,
+      limit: limit ? +limit : 10,
+    });
   }
+
 
   @Post('assign-assistant')
   @UseGuards(AuthGuard, RoleGuard)
