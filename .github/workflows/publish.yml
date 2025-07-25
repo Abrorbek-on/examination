@@ -36,6 +36,9 @@ jobs:
 
             cd examination
 
+            echo "Creating .env file"
+            echo "${{ secrets.ENV_CONTENT }}" > .env
+
             echo "Stopping containers"
             docker compose down
 
