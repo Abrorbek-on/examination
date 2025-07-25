@@ -98,6 +98,14 @@ export class UsersService {
 
   async remove(id: number) {
     await this.findOne(id);
-    return this.prisma.user.delete({ where: { id } });
+
+    await this.prisma.question.deleteMany({
+      where: { userId: id },
+    });
+
+    return this.prisma.user.delete({
+      where: { id },
+    });
   }
+
 }

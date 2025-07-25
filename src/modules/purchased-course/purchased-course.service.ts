@@ -58,10 +58,23 @@ export class PurchasedCourseService {
   }
 
   async purchase(userId: number, dto: PurchaseCourseDto) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new BadRequestException(`userId noto‘g‘ri: ${userId}`);
+    }
+
+    const course = await this.prisma.course.findUnique({ where: { id: dto.courseId } });
+    if (!course) {
+      throw new BadRequestException(`courseId notog‘ri: ${dto.courseId}`);
+    }
+
     const exists = await this.prisma.purchasedCourse.findFirst({
       where: { userId, courseId: dto.courseId },
     });
-    if (exists) throw new BadRequestException('Course already purchased');
+
+    if (exists) {
+      throw new BadRequestException('Course already purchased');
+    }
 
     return this.prisma.purchasedCourse.create({
       data: {
@@ -73,6 +86,9 @@ export class PurchasedCourseService {
       },
     });
   }
+
+
+
 
   async getStudents(courseId: number) {
     const course = await this.prisma.course.findUnique({
@@ -99,33 +115,46 @@ export class PurchasedCourseService {
 
 
 
-async create(dto: CreatePurchasedCourseDto) {
-  if (typeof dto.amount !== 'number' || isNaN(dto.amount)) {
-    throw new BadRequestException('amount raqam bolishi kerak');
+  async create(dto: CreatePurchasedCourseDto) {
+    if (typeof dto.userId !== 'number' || isNaN(dto.userId)) {
+      throw new BadRequestException('userId raqam bo‘lishi kerak');
+    }
+
+    if (typeof dto.amount !== 'number' || isNaN(dto.amount)) {
+      throw new BadRequestException('amount raqam bo‘lishi kerak');
+    }
+
+    const validPaidViaValues = Object.values(PaidVia);
+    if (!validPaidViaValues.includes(dto.paidVia)) {
+      throw new BadRequestException(`paidVia qiymati noto‘g‘ri. Ruxsat etilgan qiymatlar: ${validPaidViaValues.join(', ')}`);
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: dto.userId },
+    });
+
+    if (!user) {
+      throw new BadRequestException(`userId noto‘g‘ri yoki mavjud emas: ${dto.userId}`);
+    }
+
+    const course = await this.prisma.course.findUnique({
+      where: { id: dto.courseId },
+    });
+
+    if (!course) {
+      throw new BadRequestException(`courseId noto‘g‘ri: ${dto.courseId}`);
+    }
+
+    return this.prisma.purchasedCourse.create({
+      data: {
+        userId: dto.userId,
+        courseId: dto.courseId,
+        amount: dto.amount,
+        paidVia: dto.paidVia,
+        purchasedAt: new Date(),
+      },
+    });
   }
 
-  const validPaidViaValues = Object.values(PaidVia);
-  if (!validPaidViaValues.includes(dto.paidVia)) {
-    throw new BadRequestException(`paidVia qiymati notogri. Ruxsat etilgan qiymatlar: ${validPaidViaValues.join(', ')}`);
-  }
-
-  const course = await this.prisma.course.findUnique({
-    where: { id: dto.courseId },
-  });
-
-  if (!course) {
-    throw new BadRequestException(`courseId notogri: ${dto.courseId}`);
-  }
-
-  return this.prisma.purchasedCourse.create({
-    data: {
-      userId: dto.userId,
-      courseId: dto.courseId,
-      amount: dto.amount,
-      paidVia: dto.paidVia,
-      purchasedAt: new Date(),
-    },
-  });
-}
 
 }
