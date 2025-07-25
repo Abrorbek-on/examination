@@ -1,8 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsUUID } from 'class-validator';
+import { IsInt } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreatePaymentDto {
-  @ApiProperty()
-  @IsUUID()
-  courseId: string;
+  @ApiProperty({ example: 1 })
+  @IsInt()
+  @Type(() => Number) 
+  courseId: number;
 }
