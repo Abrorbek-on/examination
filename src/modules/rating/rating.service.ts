@@ -49,6 +49,22 @@ export class RatingService {
   async create(dto: CreateRatingDto) {
     const { userId, courseId, rate, comment } = dto;
 
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new BadRequestException(`Foydalanuvchi topilmadi: userId=${userId}`);
+    }
+
+    const course = await this.prisma.course.findUnique({
+      where: { id: courseId },
+    });
+
+    if (!course) {
+      throw new BadRequestException(`Kurs topilmadi: courseId=${courseId}`);
+    }
+
     return this.prisma.rating.create({
       data: { userId, courseId, rate, comment },
     });

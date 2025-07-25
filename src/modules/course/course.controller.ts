@@ -33,9 +33,9 @@ import { AuthGuard } from 'src/common/global/guard';
 export class CoursesController {
   constructor(private readonly service: CoursesService) { }
 
-  @ApiOperation({ summary: 'Filter va pagination bilan savollar ro‘yxati' })
+  @ApiOperation({ summary: 'Filter va pagination bilan kurslar ro‘yxati' })
   @ApiQuery({ name: 'search', required: false, type: String })
-  @ApiQuery({ name: 'level', required: false, type: String })
+  @ApiQuery({ name: 'level', required: false, enum: ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'] })
   @ApiQuery({ name: 'categoryId', required: false, type: Number })
   @ApiQuery({ name: 'mentorId', required: false, type: Number })
   @ApiQuery({ name: 'priceMin', required: false, type: Number })
@@ -133,6 +133,15 @@ export class CoursesController {
   @UseGuards(AuthGuard, RoleGuard)
   @Roles('ADMIN', 'MENTOR')
   @ApiOperation({ summary: 'Mentorning o‘z kurslarini olish' })
+
+  @ApiQuery({ name: 'search', required: false, description: 'Qidiruv so‘zi' })
+  @ApiQuery({ name: 'level', required: false, enum: ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'], description: 'Kurs darajasi' })
+  @ApiQuery({ name: 'category_id', required: false, description: 'Kategoriya ID' })
+  @ApiQuery({ name: 'price_min', required: false, description: 'Minimum narx' })
+  @ApiQuery({ name: 'price_max', required: false, description: 'Maksimum narx' })
+  @ApiQuery({ name: 'offset', required: false, description: 'Offset', example: 0 })
+  @ApiQuery({ name: 'limit', required: false, description: 'Limit', example: 10 })
+
   getMyCourses(
     @Request() req,
     @Query('search') search?: string,
@@ -153,8 +162,6 @@ export class CoursesController {
       limit: limit ? +limit : 10,
     });
   }
-
-
   @Get('mentor/:id')
   @UseGuards(AuthGuard, RoleGuard)
   @Roles('ADMIN')

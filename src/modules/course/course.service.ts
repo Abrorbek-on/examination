@@ -75,6 +75,7 @@ export class CoursesService {
     };
   }
 
+
   async getSingle(id: number) {
     if (!id || isNaN(id)) {
       throw new BadRequestException('ID notogri');

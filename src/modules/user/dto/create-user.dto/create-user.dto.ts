@@ -24,12 +24,6 @@ export class CreateUserDto {
   @IsString()
   fullName: string;
 
-  @ApiProperty({
-    example: 'https://example.com/profile.jpg',
-    description: 'Foydalanuvchi profil rasmi URL manzili',
-  })
-  @IsString()
-  image: string;
 
   @ApiPropertyOptional({
     example: 'ADMIN',

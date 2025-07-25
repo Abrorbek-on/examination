@@ -78,8 +78,14 @@ export class UsersService {
       throw new ConflictException('Bu telefon raqami bilan foydalanuvchi allaqachon mavjud');
     }
 
-    return this.prisma.user.create({ data: dto });
+    return this.prisma.user.create({
+      data: {
+        ...dto,
+        image: 'https://default-image.url/no-image.jpg',
+      },
+    });
   }
+
 
 
   async updateUser(id: number, dto: UpdateUserDto) {

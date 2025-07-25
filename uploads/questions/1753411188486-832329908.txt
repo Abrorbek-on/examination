@@ -1,0 +1,104 @@
+----------------- .github/workflows/deploy.yml   --------------
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DB_HOST }}
+          username: ${{ secrets.DB_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            echo "Creating project folder if it doesn't exist"
+            mkdir -p /home/ubuntu/nest_dars
+            cd /home/ubuntu/nest_dars
+
+            if [ ! -d .git ]; then
+              echo "Cloning repository"
+              git clone https://github.com/Abrorbek-on/dars4.git .
+            else
+              echo "Pulling latest changes"
+              git pull origin main
+            fi
+
+            echo "Stopping containers"
+            sudo /usr/bin/docker compose down
+
+            echo "Building containers"
+            sudo /usr/bin/docker compose build
+
+            echo "Running containers"
+            sudo /usr/bin/docker compose up -d
+
+
+------------------------------------------------------------------
+
+
+-------------------  docker-compose.yml   -------------------------
+
+services:
+  db:
+    image: postgres:15
+    container_name: postgres_app
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: dars4
+    ports:
+      - "5432:5432"
+    volumes:
+      - p_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: nest_dars
+    restart: always
+    ports:
+      - "4000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+    command: >
+      sh -c "
+        npx prisma generate &&
+        npx prisma migrate deploy &&
+        npm run start:prod
+      "
+
+volumes:
+  p_data:
+
+
+-----------------------------------------------------------------
+
+
+---------------   Dockerfile  -------------------------------
+
+FROM node:22-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+RUN npx prisma generate
+RUN npm run build
+
+EXPOSE 3000
+
+CMD ["npm", "run", "start:prod"]
+

@@ -3,39 +3,39 @@ import { IsBoolean, IsEnum, IsInt, IsNumber, IsString } from 'class-validator';
 import { CourseLevel } from '@prisma/client';
 
 export class CreateCourseDto {
-  @ApiProperty({ example: 'NestJS Bootcamp', description: 'Kurs nomi' })
+  @ApiProperty({ example: 'NestJS Bootcamp' })
   @IsString()
   name: string;
 
-  @ApiProperty({ example: 'Bu kurs NestJS framework haqida', description: 'Kurs haqida qisqacha maʼlumot' })
+  @ApiProperty({ example: 'Bu kurs NestJS framework haqida' })
   @IsString()
   about: string;
 
-  @ApiProperty({ example: 120000, description: 'Kurs narxi' })
+  @ApiProperty({ example: 120000 })
   @IsNumber()
   price: number;
 
-  @ApiProperty({ example: 'https://cdn.example.com/nestjs.jpg', description: 'Banner rasmi URL' })
+  @ApiProperty({ example: 'https://cdn.example.com/nestjs.jpg' })
   @IsString()
   banner: string;
 
-  @ApiProperty({ example: 'https://cdn.example.com/intro.mp4', description: 'Kirish videosi URL' })
+  @ApiProperty({ example: 'https://cdn.example.com/intro.mp4' })
   @IsString()
   introVideo: string;
 
-  @ApiProperty({ example: 'BEGINNER', enum: CourseLevel, description: 'Kurs darajasi' })
+  @ApiProperty({ example: 'BEGINNER', enum: CourseLevel })
   @IsEnum(CourseLevel)
   level: CourseLevel;
 
-  @ApiProperty({ example: 2, description: 'Category ID (foreign key)' })
+  @ApiProperty({ example: 2 })
   @IsInt()
   categoryId: number;
 
-  @ApiProperty({ example: 5, description: 'Mentor ID (foreign key)' })
+  @ApiProperty({ example: 5 })
   @IsInt()
   mentorId: number;
 
-  @ApiProperty({ example: true, description: 'Kurs eʼlon qilinganmi yo‘qmi' })
+  @ApiProperty({ example: true })
   @IsBoolean()
   published: boolean;
 }

@@ -7,17 +7,22 @@ import { UpdateLessonDto } from "./dto/update-lesson.dto/update-lesson.dto"
 export class LessonsService {
   constructor(private readonly prisma: PrismaService) { }
 
-  async create(createLessonDto: CreateLessonDto) {
+  async create(dto: CreateLessonDto, video: Express.Multer.File) {
     const group = await this.prisma.lessonGroup.findUnique({
-      where: { id: createLessonDto.groupId },
+      where: { id: dto.groupId },
     });
 
     if (!group) {
       throw new BadRequestException('Bunday groupId mavjud emas');
     }
 
+    const videoPath = `/uploads/videos/${video.filename}`;
+
     return this.prisma.lesson.create({
-      data: createLessonDto,
+      data: {
+        ...dto,
+        video: videoPath,
+      },
       include: {
         group: true,
       },

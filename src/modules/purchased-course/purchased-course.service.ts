@@ -2,7 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from "@nestjs/comm
 import { PrismaService } from "src/core/database/prisma.service";
 import { CreatePurchasedCourseDto, PurchaseCourseDto } from "./dto/buy-course.dto/buy-course.dto";
 import { GetMyPurchasedCoursesDto, GetStudentsDto } from "./dto/purchase.course.dto";
-import { CourseLevel } from "@prisma/client";
+import { CourseLevel, PaidVia } from "@prisma/client";
 import { Prisma } from "generated/prisma";
 
 @Injectable()
@@ -99,16 +99,33 @@ export class PurchasedCourseService {
 
 
 
-    async create(dto: CreatePurchasedCourseDto) {
-    return this.prisma.purchasedCourse.create({
-      data: {
-        userId: dto.userId,
-        courseId: dto.courseId,
-        amount: dto.amount,
-        paidVia: dto.paidVia,
-        purchasedAt: new Date(),
-      },
-    });
-    
+async create(dto: CreatePurchasedCourseDto) {
+  if (typeof dto.amount !== 'number' || isNaN(dto.amount)) {
+    throw new BadRequestException('amount raqam bolishi kerak');
   }
+
+  const validPaidViaValues = Object.values(PaidVia);
+  if (!validPaidViaValues.includes(dto.paidVia)) {
+    throw new BadRequestException(`paidVia qiymati notogri. Ruxsat etilgan qiymatlar: ${validPaidViaValues.join(', ')}`);
+  }
+
+  const course = await this.prisma.course.findUnique({
+    where: { id: dto.courseId },
+  });
+
+  if (!course) {
+    throw new BadRequestException(`courseId notogri: ${dto.courseId}`);
+  }
+
+  return this.prisma.purchasedCourse.create({
+    data: {
+      userId: dto.userId,
+      courseId: dto.courseId,
+      amount: dto.amount,
+      paidVia: dto.paidVia,
+      purchasedAt: new Date(),
+    },
+  });
+}
+
 }

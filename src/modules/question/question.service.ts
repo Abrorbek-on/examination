@@ -36,7 +36,7 @@ export class QuestionService {
     return question;
   }
 
-  async create(dto: CreateQuestionDto) {
+  async create(dto: CreateQuestionDto, filename?: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: dto.userId },
     });
@@ -52,9 +52,11 @@ export class QuestionService {
         text: dto.text,
         courseId: dto.courseId,
         userId: dto.userId,
+        file: filename || null,
       },
     });
   }
+
 
   async update(id: number, dto: UpdateQuestionDto) {
     await this.getOne(id);

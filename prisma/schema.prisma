@@ -47,7 +47,7 @@ model User {
   phone     String   @unique
   password  String
   role      UserRole @default(STUDENT)
-  image     String
+  image     String?
   createdAt DateTime @default(now())
 
   mentorProfile   MentorProfile[]
@@ -61,6 +61,7 @@ model User {
   examResults     ExamResult[]
   questions       Question[]
   questionAnswers QuestionAnswer[]
+  Transaction     Transaction[]
 }
 
 model MentorProfile {
@@ -110,6 +111,7 @@ model Course {
   lastActivity    LastActivity[]
   lessonGroup     LessonGroup[]
   questions       Question[]
+  Transaction     Transaction[]
 }
 
 model AssignedCourse {
@@ -253,7 +255,6 @@ model Exam {
   createdAt     DateTime   @default(now())
 
   lessonGroup LessonGroup @relation(fields: [lessonGroupId], references: [id])
-  
 }
 
 model ExamResult {
@@ -280,8 +281,8 @@ model Question {
   updatedAt DateTime  @updatedAt
   createdAt DateTime  @default(now())
 
-  user   User            @relation(fields: [userId], references: [id])
-  course Course          @relation(fields: [courseId], references: [id])
+  user   User             @relation(fields: [userId], references: [id])
+  course Course           @relation(fields: [courseId], references: [id])
   answer QuestionAnswer[]
 }
 
@@ -298,3 +299,17 @@ model QuestionAnswer {
   user     User     @relation(fields: [userId], references: [id])
 }
 
+model Transaction {
+  id           String    @id @default(uuid())
+  pid          String    @unique
+  amount       Decimal
+  perform_time DateTime?
+  create_time  DateTime?
+  cancel_time  DateTime?
+  state        Int
+  reason       Int?
+  userId       Int?
+  user         User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  courseId     Int?
+  course       Course?   @relation(fields: [courseId], references: [id], onDelete: SetNull)
+}

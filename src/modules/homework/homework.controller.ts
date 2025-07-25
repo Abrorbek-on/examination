@@ -4,15 +4,21 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { HomeworkSubStatus } from '@prisma/client';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { HomeworkService } from '../homework/homework.service';
 import { CreateHomeworkDto } from '../homework/dto/create-homework.dto/create-homework.dto';
 import { UpdateHomeworkDto } from '../homework/dto/update-homework.dto/update-homework.dto';
+import { extname } from 'path';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 
 @ApiTags('Homework')
 @Controller('homework')
@@ -20,12 +26,43 @@ export class HomeworkController {
   constructor(private readonly service: HomeworkService) { }
 
   @Post()
-  @ApiOperation({ summary: 'Yangi uyga vazifa yaratish' })
-  @ApiResponse({ status: 201, description: 'Uyga vazifa yaratildi' })
-  @ApiBody({ type: CreateHomeworkDto })
-  create(@Body() body: CreateHomeworkDto) {
-    return this.service.create(body);
+  @UseInterceptors(FileInterceptor('file', {
+    storage: diskStorage({
+      destination: './uploads',
+      filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        const ext = extname(file.originalname);
+        cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
+      },
+    }),
+  }))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        task: { type: 'string', example: 'Uyga vazifa' },
+        file: { type: 'string', format: 'binary' },
+        lessonId: { type: 'number', example: 5 }
+      },
+    },
+  })
+  @ApiOperation({ summary: 'Yangi uyga vazifa yaratish (fayl bilan)' })
+  async create(
+    @UploadedFile() file: Express.Multer.File,
+    @Body('task') task: string,
+    @Body('lessonId', ParseIntPipe) lessonId: number,
+  ) {
+    const fileName = file?.filename;
+
+    return this.service.create({
+      task,
+      file: fileName,
+      lessonId,
+    });
   }
+
+
 
   @Get()
   @ApiOperation({ summary: 'Barcha uyga vazifalarni olish' })

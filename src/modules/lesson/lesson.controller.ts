@@ -1,11 +1,14 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Put } from "@nestjs/common"
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam } from "@nestjs/swagger"
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Put, UploadedFile, UseInterceptors } from "@nestjs/common"
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiBody, ApiConsumes } from "@nestjs/swagger"
 import { AuthGuard } from "src/common/global/guard"
 import { RoleGuard } from "src/common/guard/role.guard"
 import { Roles } from "src/common/global/decarator"
 import { LessonsService } from "./lesson.service"
 import { CreateLessonDto } from "./dto/create-lesson.dto/create-lesson.dto"
 import { UpdateLessonDto } from "./dto/update-lesson.dto/update-lesson.dto"
+import { FileInterceptor } from "@nestjs/platform-express"
+import { diskStorage } from "multer"
+import { extname } from "path"
 
 @ApiTags("Lessons")
 @Controller("lessons")
@@ -49,12 +52,39 @@ export class LessonsController {
 
   @Post('create')
   @UseGuards(AuthGuard, RoleGuard)
+  @UseInterceptors(FileInterceptor('video', {
+    storage: diskStorage({
+      destination: './uploads/videos',
+      filename: (req, file, cb) => {
+        const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        cb(null, unique + extname(file.originalname));
+      },
+    }),
+  }))
   @ApiBearerAuth()
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', example: 'JS Kirish' },
+        about: { type: 'string', example: 'Video haqida' },
+        groupId: { type: 'number', example: 1 },
+        video: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @Roles('ADMIN', 'MENTOR')
-  @ApiOperation({ summary: 'Yangi dars yaratish' })
+  @ApiOperation({ summary: 'Yangi dars yaratish (video bilan)' })
   @ApiResponse({ status: 201, description: 'Dars yaratildi' })
-  create(@Body() createLessonDto: CreateLessonDto) {
-    return this.lessonsService.create(createLessonDto);
+  create(
+    @Body() dto: CreateLessonDto,
+    @UploadedFile() video: Express.Multer.File,
+  ) {
+    return this.lessonsService.create(dto, video);
   }
 
   @Patch(":id")

@@ -10,6 +10,7 @@ import {
   UploadedFile,
   UseInterceptors,
   ParseIntPipe,
+  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -45,11 +46,41 @@ export class QuestionController {
     return this.questionService.getOne(id);
   }
 
-  @ApiOperation({ summary: 'Yangi savol yaratish' })
   @Post()
-  create(@Body() dto: CreateQuestionDto) {
-    return this.questionService.create(dto);
+  @ApiOperation({ summary: 'Yangi savol yaratish' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        userId: { type: 'integer', example: 1 },
+        courseId: { type: 'integer', example: 2 },
+        text: { type: 'string', example: 'NestJS haqida savol' },
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads/questions',
+        filename: (req, file, cb) => {
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, uniqueSuffix + extname(file.originalname));
+        },
+      }),
+    }),
+  )
+  create(
+    @Body() dto: CreateQuestionDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.questionService.create(dto, file?.filename);
   }
+
 
   @ApiOperation({ summary: 'Savolni yangilash' })
   @Put(':id')
@@ -101,19 +132,22 @@ export class QuestionController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
-        destination: './uploads',
+        destination: './uploads/questionimage',
         filename: (req, file, cb) => {
           const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
           const ext = extname(file.originalname);
-          cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
+          cb(null, `question-${uniqueSuffix}${ext}`);
         },
       }),
     }),
   )
-  uploadFile(
+  async uploadFile(
     @Param('id', ParseIntPipe) id: number,
     @UploadedFile() file: Express.Multer.File,
   ) {
+    if (!file) {
+      throw new BadRequestException('Fayl yuklanmadi');
+    }
     return this.questionService.uploadFile(id, file.filename);
   }
 }

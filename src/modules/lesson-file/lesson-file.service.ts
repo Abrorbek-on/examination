@@ -6,24 +6,25 @@ import { CreateLessonFileDto } from "./dto/upload-file.dto/upload-file.dto"
 export class LessonFilesService {
   constructor(private readonly prisma: PrismaService) { }
 
-  async create(createLessonFileDto: CreateLessonFileDto) {
-    const lessonExists = await this.prisma.lesson.findUnique({ where: { id: createLessonFileDto.lessonId } });
-    if (!lessonExists) {
+  async create(dto: CreateLessonFileDto) {
+    const lesson = await this.prisma.lesson.findUnique({
+      where: { id: dto.lessonId },
+    });
+
+    if (!lesson) {
       throw new NotFoundException('Lesson not found');
     }
 
     return this.prisma.lessonFile.create({
-      data: createLessonFileDto,
+      data: dto,
       include: {
         lesson: {
-          select: {
-            id: true,
-            name: true,
-          },
+          select: { id: true, name: true },
         },
       },
     });
   }
+
 
 
   async findByLesson(lessonId: number) {
